@@ -64,7 +64,7 @@ range
 term
   : VARNUM
   | VARNUM '[' expression ']'
-  -> INDEX VARNUM expression
+  -> ^(INDEX VARNUM expression)
   | INTEGER
   | '('! expression ')'!
   | generator
@@ -95,12 +95,12 @@ printstatement
   
 generator
   : '[' VARNUM 'in' e1=expression '|' e2=expression ']'
-  -> GEN VARNUM $e1 $e2
+  -> ^(GEN VARNUM $e1 $e2)
   ;
   
 filter
   : FILTER '(' VARNUM 'in' e1=expression '|' e2=expression ')'
-  -> FILT VARNUM $e1 $e2
+  -> ^(FILT VARNUM $e1 $e2)
   ;
      
 IF : 'if';
