@@ -59,7 +59,7 @@ public class Vcalc_Test {
 	    // Pass it all to the String templater!
 	    String templateFile = args[1] + ".stg";
 
-	    Reader template = new InputStreamReader(Scalc_Test.class.getResourceAsStream(templateFile));
+	    Reader template = new InputStreamReader(Vcalc_Test.class.getResourceAsStream(templateFile));
 	    StringTemplateGroup stg = new StringTemplateGroup(template);
 
 	    // nodes.reset();

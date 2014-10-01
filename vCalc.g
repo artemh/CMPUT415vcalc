@@ -7,7 +7,7 @@ options {
 }
 
 tokens {
-  DECL; ASSIGN; IFSTAT; LOOPSTAT; PRINTSTAT; BLOCK; OK;
+  DECL; ASSIGN; IFSTAT; LOOPSTAT; PRINTSTAT; BLOCK; OK; INDEX; GEN; FILT;
 }
 
 @members {
@@ -64,6 +64,7 @@ range
 term
   : VARNUM
   | VARNUM '[' expression ']'
+  -> INDEX VARNUM expression
   | INTEGER
   | '('! expression ')'!
   | generator
@@ -93,11 +94,13 @@ printstatement
   ;
   
 generator
-  : '[' VARNUM 'in' expression '|' expression ']'
+  : '[' VARNUM 'in' e1=expression '|' e2=expression ']'
+  -> GEN VARNUM $e1 $e2
   ;
   
 filter
-  : FILTER '(' VARNUM 'in' expression '|' expression ')'
+  : FILTER '(' VARNUM 'in' e1=expression '|' e2=expression ')'
+  -> FILT VARNUM $e1 $e2
   ;
      
 IF : 'if';
