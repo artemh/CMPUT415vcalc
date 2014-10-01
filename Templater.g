@@ -3,7 +3,7 @@ tree grammar Templater;
 options {
   language = Java;
   output = template;
-  tokenVocab = sCalc;
+  tokenVocab = vCalc;
   ASTLabelType = CommonTree;
 }
 

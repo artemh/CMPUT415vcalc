@@ -2,7 +2,7 @@ tree grammar Interpreter;
 
 options {
   language = Java;
-  tokenVocab = sCalc;
+  tokenVocab = vCalc;
   ASTLabelType = CommonTree;
 }
 

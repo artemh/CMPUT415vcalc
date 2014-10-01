@@ -4,7 +4,7 @@ options {
   language = Java;
   filter = true;
   backtrack = true;
-  tokenVocab = sCalc;
+  tokenVocab = vCalc;
   ASTLabelType = CommonTree;
 }
 
