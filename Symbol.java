@@ -2,7 +2,7 @@ public class Symbol {
 	public String name;
 	public Type type;
 	public Object value;
-	public String location;
+	public Scope scope;
 	
 	public Symbol(String name) {
 		this.name = name;
@@ -22,12 +22,6 @@ public class Symbol {
 		this.name = name;
 		this.type = type;
 		this.value = value;
-	}
-	
-	public Symbol(String name, Type type, String location) {
-		this.name = name;
-		this.type = type;
-		this.location = location;
 	}
 	
 	public String getName() { 
