@@ -6,17 +6,13 @@ options {
   ASTLabelType = CommonTree;
 }
 
-@members {
-  SymbolTable symbols = new SymbolTable();
-}
-
 program
   : (declaration)*
     (statement)*
   ;
   
 declaration
-  : ^(DECL VARNUM exp=expression) { symbols.define(new VarSymbol($VARNUM.text, (Type)symbols.resolve("int"), $exp.result)); }
+  : ^(DECL type VARNUM exp=expression)
   ;
   
 // The idea on how to do if and loop statements in the interpreter
@@ -26,7 +22,9 @@ declaration
 statement
   : ^(IFSTAT exp=expression { int block = input.index(); } .) {
     int next = input.index();
-    if ($exp.result != 0) {
+    // need to do type checking here
+    int cond = $exp.e.evaluate();
+    if (cond != 0) {
       input.seek(block);
       block();
     }
@@ -38,32 +36,42 @@ statement
   | ^(LOOPSTAT { int expr = input.index() + 1; } . { int block = input.index(); } .) {
     int next = input.index();
     input.seek(expr);
-    int cond = expression();
+    // need to do type checking here
+    int cond = expression().evaluate();
     while (cond != 0) {
       input.seek(block);
       block();
       input.seek(expr);
-      cond = expression();
+      cond = expression().evaluate();
     }
     input.seek(next);
   }
-  | ^(PRINTSTAT exp=expression { System.out.println(Integer.toString($exp.result)); })
-  | ^(ASSIGN VARNUM exp=expression) { symbols.define(new VarSymbol($VARNUM.text, (Type)symbols.resolve("int"), $exp.result)); }
+  | ^(PRINTSTAT exp=expression)
+  | ^(ASSIGN VARNUM exp=expression)
   ;
   
 block
   : ^(BLOCK statement*)
   ;
 
-expression returns [int result]
-  : ^('==' op1=expression op2=expression) { if ($op1.result == $op2.result) { result = 1; } else { result = 0; } }
-  | ^('!=' op1=expression op2=expression) { if ($op1.result != $op2.result) { result = 1; } else { result = 0; } }
-  | ^('<' op1=expression op2=expression) { if ($op1.result < $op2.result) { result = 1; } else { result = 0; } }
-  | ^('>' op1=expression op2=expression) { if ($op1.result > $op2.result) { result = 1; } else { result = 0; } }
-  | ^('+' op1=expression op2=expression) { result = ($op1.result + $op2.result); }
-  | ^('-' op1=expression op2=expression) { result = ($op1.result - $op2.result); }
-  | ^('*' op1=expression op2=expression) { result = ($op1.result * $op2.result); }
-  | ^('/' op1=expression op2=expression) { result = ($op1.result / $op2.result); }
-  | VARNUM  { result = (Integer)symbols.getValue($VARNUM.text); }
-  | INTEGER { result = Integer.parseInt($INTEGER.text); }
+expression returns [Evaluator e]
+  : ^('==' op1=expression op2=expression)
+  | ^('!=' op1=expression op2=expression)
+  | ^('<' op1=expression op2=expression)
+  | ^('>' op1=expression op2=expression)
+  | ^('+' op1=expression op2=expression)
+  | ^('-' op1=expression op2=expression)
+  | ^('*' op1=expression op2=expression)
+  | ^('/' op1=expression op2=expression)
+  | ^('..' op1=expression op2=expression)
+  | ^(GEN VARNUM op1=expression op2=expression)
+  | ^(FILT VARNUM op1=expression op2=expression)
+  | ^(INDEX VARNUM op=expression)
+  | VARNUM 
+  | INTEGER
+  ;
+  
+type
+  : INT
+  | VECTOR
   ;
