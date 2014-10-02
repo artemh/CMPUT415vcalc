@@ -1,6 +1,6 @@
 group llvm;
 
-program(filename, decl1, decl2, stat,) ::= <<
+program(filename, decl1, decl2, stat) ::= <<
 ; ModuleID = '<filename>'
 
 <decl1:{d|<d>}>
