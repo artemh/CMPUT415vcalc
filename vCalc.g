@@ -54,20 +54,15 @@ addition
   ;
   
 multiplication
-  : term (('*'^ | '/'^) term)*
+  : index (('*'^ | '/'^) index)*
   ;
   
-range
-  : INTEGER '..'^ INTEGER
-  | INTEGER '..'^ VARNUM
-  | VARNUM '..'^ INTEGER
-  | VARNUM '..'^ VARNUM
-  ; 
+index
+  : term ('[' expression ']')?
+  ;
   
 term
   : VARNUM
-  | VARNUM '[' expression ']'
-  -> ^(INDEX VARNUM expression)
   | INTEGER
   | '('! expression ')'!
   | generator
@@ -106,6 +101,14 @@ filter
   : FILTER '(' VARNUM IN e1=expression '|' e2=expression ')'
   -> ^(FILT VARNUM $e1 $e2)
   ;
+  
+   
+range
+  : INTEGER '..'^ INTEGER
+  | INTEGER '..'^ VARNUM
+  | VARNUM '..'^ INTEGER
+  | VARNUM '..'^ VARNUM
+  ;  
      
 IF : 'if';
 FI : 'fi';
