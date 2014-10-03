@@ -6,6 +6,11 @@ options {
   ASTLabelType = CommonTree;
 }
 
+@header {
+	import helpers.*;
+
+}
+
 program
   : (declaration)*
     (statement)*
@@ -60,6 +65,7 @@ expression returns [Evaluator e]
   | ^('<' op1=expression op2=expression)
   | ^('>' op1=expression op2=expression)
   | ^('+' op1=expression op2=expression)
+  	{ $e = new EvaluatorPlus($op1.e, $op2.e); }
   | ^('-' op1=expression op2=expression)
   | ^('*' op1=expression op2=expression)
   | ^('/' op1=expression op2=expression)

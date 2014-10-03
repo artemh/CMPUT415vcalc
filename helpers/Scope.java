@@ -1,3 +1,4 @@
+package helpers;
 public interface Scope {
 	public String getScopeName();
 	public Scope getEnclosingScope();

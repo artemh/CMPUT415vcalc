@@ -1,3 +1,4 @@
+package helpers;
 public class SymbolTable {
 	GlobalScope globals = new GlobalScope();
 	

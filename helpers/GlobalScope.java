@@ -1,3 +1,4 @@
+package helpers;
 public class GlobalScope extends BaseScope {
 	public GlobalScope() {
 		super(null);
