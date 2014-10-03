@@ -57,22 +57,22 @@ multiplication
   : term (('*'^ | '/'^) term)*
   ;
   
+range
+  : INTEGER '..'^ INTEGER
+  | INTEGER '..'^ VARNUM
+  | VARNUM '..'^ INTEGER
+  | VARNUM '..'^ VARNUM
+  ; 
+  
 term
   : VARNUM
-  | vector '[' expression ']'
+  | VARNUM '[' expression ']'
   -> ^(INDEX VARNUM expression)
   | INTEGER
   | '('! expression ')'!
   | generator
   | filter
   | range
-  ;
-  
-vector
-  :	VARNUM
-  | generator
-  | filter
-  |	range
   ;
   
 statement
@@ -106,10 +106,6 @@ filter
   : FILTER '(' VARNUM IN e1=expression '|' e2=expression ')'
   -> ^(FILT VARNUM $e1 $e2)
   ;
-  
-range
-  : term ('..'^ term)?
-  ; 
      
 IF : 'if';
 FI : 'fi';
