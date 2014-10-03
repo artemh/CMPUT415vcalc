@@ -94,12 +94,12 @@ printstatement
   ;
   
 generator
-  : '[' VARNUM 'in' e1=expression '|' e2=expression ']'
+  : '[' VARNUM IN e1=expression '|' e2=expression ']'
   -> ^(GEN VARNUM $e1 $e2)
   ;
   
 filter
-  : FILTER '(' VARNUM 'in' e1=expression '|' e2=expression ')'
+  : FILTER '(' VARNUM IN e1=expression '|' e2=expression ')'
   -> ^(FILT VARNUM $e1 $e2)
   ;
      
@@ -111,6 +111,7 @@ INT : 'int';
 VECTOR : 'vector';
 FILTER : 'filter';
 PRINT : 'print';
+IN : 'in';
 VARNUM : ('a'..'z'|'A'..'Z') ('a'..'z'|'A'..'Z'|'0'..'9')*;
 INTEGER : ('0'..'9')+;
 WS : (' '|'\r'|'\n'|'\t') {$channel = HIDDEN;};
