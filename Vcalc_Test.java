@@ -36,7 +36,8 @@ public class Vcalc_Test {
     ANTLRStringStream input = new ANTLRStringStream("int i = 1;\n" + 
 			"vector j = [i in 2..4 | i * i];\n" + 
 			"print(i);\n" + 
-			"print(j);\n");
+			"print(j);\n" + 
+			"print(i);\n");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
