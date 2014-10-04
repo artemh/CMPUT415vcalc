@@ -22,8 +22,9 @@ public class EvaluatorGreater implements Evaluator {
 	@Override
 	public Object evaluate() {
 		if(type.getName().equals("int")) {
-			Boolean result = (Integer)lhs.evaluate()>(Integer)rhs.evaluate();
-			return result ? 1 : 0;
+			Integer l = (Integer) lhs.evaluate();
+			Integer r = (Integer) rhs.evaluate();
+			return (l.compareTo(r) > 0) ? 1 : 0;
 		} else if(type.getName().equals("vector")) {
 			ArrayList<Integer> result = new ArrayList<Integer>();
 			return result;

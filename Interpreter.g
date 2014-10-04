@@ -49,7 +49,7 @@ statement
   // for expr, ANTLR places that code immediately after the LOOPSTAT token,
   // but there is an additional <DOWN> token before the position we actually
   // want to be at, needing the + 1
-  | ^(LOOPSTAT { int expr = input.index() + 1; } . { int block = input.index(); } .) 
+  | ^(LOOPSTAT { int expr = input.index() + 1; } exp=expression { int block = input.index(); } .) 
   {
     int next = input.index();
     input.seek(expr);

@@ -26,11 +26,27 @@ public class Vcalc_Test {
 	}
 	**/
 	//ANTLRFileStream input = null;
-	ANTLRStringStream input = new ANTLRStringStream("int i = 0;\n" + 
+	ANTLRStringStream input = new ANTLRStringStream("int i = 1;\n" + 
+			"int p = 1;\n" + 
+			"int isPrime = 1;\n" + 
 			"\n" + 
-			"loop (i < 5)\n" + 
-			"    print(i);\n" + 
-			"    i = i + 1;\n" + 
+			"loop (p < 1000)\n" + 
+			"    i=1;\n" + 
+			"    isPrime=1;\n" + 
+			"    p=p+1;\n" + 
+			"\n" + 
+			"    loop (i < p/2)\n" + 
+			"        i=i+1;\n" + 
+			"\n" + 
+			"        if ((p/i) * i == p)\n" + 
+			"            isPrime = 0;\n" + 
+			"            i = p;\n" + 
+			"        fi;\n" + 
+			"    pool;\n" + 
+			"\n" + 
+			"    if (isPrime)\n" + 
+			"        print(p);\n" + 
+			"    fi;\n" + 
 			"pool;");
 	/**
 	try {
