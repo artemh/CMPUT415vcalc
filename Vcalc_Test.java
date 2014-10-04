@@ -26,14 +26,12 @@ public class Vcalc_Test {
 	}
 	**/
 	//ANTLRFileStream input = null;
-	ANTLRStringStream input = new ANTLRStringStream("vector v = 1..10;\n" + 
+	ANTLRStringStream input = new ANTLRStringStream("vector v = 10..20;\n" + 
 			"vector b = 0..2;\n" +
 			"int i = 5;\n" +
 			"vector err = 6..15;\n" + 
 			"print(v);\n"  +
-			"print(err);\n" + 
-			"print(v+err);" + 
-			"print(20-v);");
+			"print(100/v);");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);

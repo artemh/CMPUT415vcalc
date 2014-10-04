@@ -54,7 +54,7 @@ public class EvaluatorMinus implements Evaluator {
 					result.add(i,lhsVec.get(i) - rhsInt);
 				}
 			} else {
-				// vec + vec
+				// vec - vec
 				ArrayList<Integer> lhsVec = (ArrayList<Integer>)lhs.evaluate();
 				ArrayList<Integer> rhsVec = (ArrayList<Integer>)rhs.evaluate();	
 				Integer lhsSize = lhsVec.size();
