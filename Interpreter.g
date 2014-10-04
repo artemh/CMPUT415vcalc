@@ -191,7 +191,9 @@ currentScope = currentScope.getEnclosingScope();
 }
   :^(GEN VARNUM op1=expression op2=expression)
   	// push new scope on the stack, define VARNUM, return evaluator
-    { $e = new EvaluatorGenerator($op1.e, $op2.e); }
+    { 
+    $e = new EvaluatorGenerator(currentScope, $VARNUM.text, $op1.e, $op2.e); 
+    }
     // After, pop the local scope from the stack
   ;
   

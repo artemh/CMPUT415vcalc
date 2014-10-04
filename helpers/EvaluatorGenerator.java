@@ -1,15 +1,21 @@
 package helpers;
 
+import java.util.ArrayList;
+
 public class EvaluatorGenerator implements Evaluator {
 	Type type;
 	Evaluator range;
 	Evaluator expression;
+	Scope scope;
+	String var;
 	
-	public EvaluatorGenerator(Evaluator range, Evaluator expression)
+	public EvaluatorGenerator(Scope scope, String var, Evaluator range, Evaluator expression)
 	{
 		type = new BuiltInTypeSymbol("vector");
 		this.range = range;
 		this.expression = expression;
+		this.scope = scope;
+		this.var = var;
 	}
 	
 	@Override
@@ -32,7 +38,16 @@ public class EvaluatorGenerator implements Evaluator {
 			throw new RuntimeException("Type check error. Generator's expression must evaluate to an integer.");
 		}
 		
-		return null;
+		ArrayList<Integer> rlist = (ArrayList<Integer>)range.evaluate();
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		
+		for (int i : rlist) {
+			VarSymbol S = new VarSymbol(var, integer, i);
+			scope.define(S);
+			result.add((Integer)expression.evaluate());
+		}
+		
+		return result;
 	}
 
 }
