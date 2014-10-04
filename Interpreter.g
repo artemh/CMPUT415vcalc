@@ -167,8 +167,12 @@ expression returns [Evaluator e]
   ;
   
 filter returns [Evaluator e]
-@init {}
-@after {}
+@init {
+currentScope = new LocalScope(currentScope);
+}
+@after {
+currentScope = currentScope.getEnclosingScope();
+}
   : ^(FILT VARNUM op1=expression op2=expression)
     // push new scope on the stack, define VARNUM, return evaluator
     { $e = new EvaluatorFilter($VARNUM.text, $op1.e, $op2.e); }
@@ -176,8 +180,12 @@ filter returns [Evaluator e]
   ;
   
 generator returns [Evaluator e]
-@init {}
-@after {}
+@init {
+currentScope = new LocalScope(currentScope);
+}
+@after {
+currentScope = currentScope.getEnclosingScope();
+}
   :^(GEN VARNUM op1=expression op2=expression)
   	// push new scope on the stack, define VARNUM, return evaluator
     { $e = new EvaluatorGenerator($op1.e, $op2.e); }

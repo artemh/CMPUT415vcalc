@@ -19,7 +19,7 @@ public class Vcalc_Test {
 	}
 	**/
 	//ANTLRFileStream input = null;
-	ANTLRStringStream input = new ANTLRStringStream("vector v = 1..6;\n" + 
+	/*ANTLRStringStream input = new ANTLRStringStream("vector v = 1..6;\n" + 
 			"vector b = 2..6;\n" +
 			"vector c = b[3..4];\n" +
 			"int l = 15;\n" +
@@ -27,11 +27,16 @@ public class Vcalc_Test {
 			"vector err = 1..15;\n" + 
 			"if (c)\n" +
 			"print(b);\n" +
-			"pool;\n" +
+			"fi;\n" +
 			"print(v);\n"  +
 			"print(b);\n"  +
 			"print(c);\n"  +
 			"print(v<b);");
+			*/
+    ANTLRStringStream input = new ANTLRStringStream("int i = 1;\n" + 
+			"vector j = [i in 2..4 | i * i];\n" + 
+			"print(i);\n" + 
+			"print(j);\n");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
