@@ -26,10 +26,12 @@ public class Vcalc_Test {
 	}
 	**/
 	//ANTLRFileStream input = null;
-	ANTLRStringStream input = new ANTLRStringStream("int i = 3;\n" + 
-			"int b = 15;\n" +
-			"i = 5+b;\n" + 
-			"print(i);\n");
+	ANTLRStringStream input = new ANTLRStringStream("int i = 0;\n" + 
+			"\n" + 
+			"loop (i < 5)\n" + 
+			"    print(i);\n" + 
+			"    i = i + 1;\n" + 
+			"pool;");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);

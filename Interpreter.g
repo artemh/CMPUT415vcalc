@@ -36,33 +36,33 @@ declaration
 // http://www.linguamantra.org/wiki/display/CS652/Tree-based+interpreters
 statement
   : ^(IFSTAT exp=expression { int block = input.index(); } .) 
-  //{
-  //  int next = input.index();
-  //  // need to do type checking here
-  //  int cond = $exp.e.evaluate();
-  //  if (cond != 0) {
-  //    input.seek(block);
-  //    block();
-  //  }
-  //  input.seek(next);
-  // }
+  {
+    int next = input.index();
+    // need to do type checking here
+    int cond = (Integer)$exp.e.evaluate();
+    if (cond != 0) {
+      input.seek(block);
+      block();
+    }
+    input.seek(next);
+   }
   // for expr, ANTLR places that code immediately after the LOOPSTAT token,
   // but there is an additional <DOWN> token before the position we actually
   // want to be at, needing the + 1
   | ^(LOOPSTAT { int expr = input.index() + 1; } . { int block = input.index(); } .) 
-  //{
-  //  int next = input.index();
-  //  input.seek(expr);
-  //  // need to do type checking here
-  //  int cond = expression().evaluate();
-  //  while (cond != 0) {
-  //    input.seek(block);
-  //    block();
-  //    input.seek(expr);
-  //    cond = expression().evaluate();
-  //  }
-  //  input.seek(next);
-  //}
+  {
+    int next = input.index();
+    input.seek(expr);
+    // need to do type checking here
+    int cond = (Integer)expression().evaluate();
+    while (cond != 0) {
+      input.seek(block);
+      block();
+      input.seek(expr);
+      cond = (Integer)expression().evaluate();
+    }
+    input.seek(next);
+  }
   | ^(PRINTSTAT exp=expression)
   	//Call evaluate on expression's evaluator and print the result
   	{
