@@ -128,14 +128,10 @@ expression returns [Evaluator e]
   	{ $e = new EvaluatorDivide($op1.e, $op2.e); }
   | ^('..' op1=expression op2=expression)
   	{ $e = new EvaluatorRange($op1.e, $op2.e); }
-  | ^(GEN VARNUM op1=expression op2=expression)
-  	// push new scope on the stack, define VARNUM, return evaluator
-    { $e = new EvaluatorGenerator($op1.e, $op2.e); }
-    // After, pop the local scope from the stack
-  | ^(FILT VARNUM op1=expression op2=expression)
-    // push new scope on the stack, define VARNUM, return evaluator
-    { $e = new EvaluatorFilter($VARNUM.text, $op1.e, $op2.e); }
-    // After, pop the local scope from the stack
+  | generator
+  	{ $e = $generator.e; }
+  | filter
+  	{ $e = $filter.e; }
   | ^(INDEX op1=expression op2=expression)
     { $e = new EvaluatorIndex($op1.e, $op2.e); }
   | VARNUM 
@@ -154,6 +150,24 @@ expression returns [Evaluator e]
   	}
   | INTEGER
   	{ $e = new EvaluatorInt(Integer.parseInt($INTEGER.text)); }
+  ;
+  
+filter returns [Evaluator e]
+@init {}
+@after {}
+  : ^(FILT VARNUM op1=expression op2=expression)
+    // push new scope on the stack, define VARNUM, return evaluator
+    { $e = new EvaluatorFilter($VARNUM.text, $op1.e, $op2.e); }
+    // After, pop the local scope from the stack
+  ;
+  
+generator returns [Evaluator e]
+@init {}
+@after {}
+  :^(GEN VARNUM op1=expression op2=expression)
+  	// push new scope on the stack, define VARNUM, return evaluator
+    { $e = new EvaluatorGenerator($op1.e, $op2.e); }
+    // After, pop the local scope from the stack
   ;
   
 type returns [Type tsym]
