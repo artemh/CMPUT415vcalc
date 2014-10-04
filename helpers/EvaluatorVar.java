@@ -20,6 +20,7 @@ public class EvaluatorVar implements Evaluator {
 		return type;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object evaluate() {
   		if (type.getName().equals("int")) {

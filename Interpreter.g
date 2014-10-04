@@ -167,7 +167,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(FILT VARNUM op1=expression op2=expression)
+  : ^(FILT VARNUM {currentScope.define(new VarSymbol($VARNUM.text, new BuiltInTypeSymbol("int"), 0));} op1=expression op2=expression)
     { 
     	$e = new EvaluatorFilter(currentScope, $VARNUM.text, $op1.e, $op2.e); 
     }
@@ -180,9 +180,9 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  :^(GEN VARNUM op1=expression op2=expression)
+  :^(GEN VARNUM {currentScope.define(new VarSymbol($VARNUM.text, new BuiltInTypeSymbol("int"), 0));} op1=expression op2=expression)
     { 
-    $e = new EvaluatorGenerator(currentScope, $VARNUM.text, $op1.e, $op2.e); 
+    	$e = new EvaluatorGenerator(currentScope, $VARNUM.text, $op1.e, $op2.e); 
     }
   ;
   

@@ -38,9 +38,8 @@ public class EvaluatorGenerator implements Evaluator {
 		if (!(etype.getName().equals(integer.getName()))) {
 			throw new RuntimeException("Type check error. Generator's expression must evaluate to an integer.");
 		}
-		
-		VarSymbol S = new VarSymbol(var, integer, 0);
-		scope.define(S);
+		//VarSymbol S = new VarSymbol(var, integer, 0);
+		//scope.define(S);
 		
 		ArrayList<Integer> rlist = (ArrayList<Integer>)range.evaluate();
 		ArrayList<Integer> result = new ArrayList<Integer>();
