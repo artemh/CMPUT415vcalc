@@ -4,6 +4,7 @@ import java.io.Reader;
 import java.util.Arrays;
 
 import org.antlr.runtime.ANTLRFileStream;
+import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
@@ -17,13 +18,16 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 
 public class Vcalc_Test {
     public static void main(String[] args) throws RecognitionException {
+    /**
 	if (args.length != 2) {
 	    System.err.print("Insufficient arguments: ");
 	    System.err.println(Arrays.toString(args));
 	    System.exit(1);
 	}
-
-	ANTLRFileStream input = null;
+	**/
+	//ANTLRFileStream input = null;
+	ANTLRStringStream input = new ANTLRStringStream("int i = [j in 1..3 | j * 2][1];\n");
+	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
 	} catch (IOException e) {
@@ -31,12 +35,13 @@ public class Vcalc_Test {
 	    System.err.println(args[0]);
 	    System.exit(1);
 	}
-
+	**/
 	vCalcLexer lexer = new vCalcLexer(input);
 	TokenStream tokenStream = new CommonTokenStream(lexer);
 	vCalcParser parser = new vCalcParser(tokenStream);
 	vCalcParser.program_return entry = parser.program();
 	Object ast = entry.getTree();
+	System.out.println(entry.tree.toStringTree());
 	/*
 	DOTTreeGenerator gen = new DOTTreeGenerator();
     StringTemplate st = gen.toDOT((Tree) ast);
@@ -46,26 +51,27 @@ public class Vcalc_Test {
 	nodes.setTokenStream(tokenStream);
 	
 	// Pass over to verify no variable misuse
-	Defined defined = new Defined(nodes);
-	defined.downup(ast);
-
+	//Defined defined = new Defined(nodes);
+	//defined.downup(ast);
+	/**
 	if (args[1].equals("int")) {
 	    // Run it through the Interpreter
 	    // nodes.reset();
-	    Interpreter interpreter = new Interpreter(nodes);
-	    interpreter.program();
+	    //Interpreter interpreter = new Interpreter(nodes);
+	    //interpreter.program();
 	}
 	else {
 	    // Pass it all to the String templater!
-	    String templateFile = args[1] + ".stg";
+	    //String templateFile = args[1] + ".stg";
 
-	    Reader template = new InputStreamReader(Vcalc_Test.class.getResourceAsStream(templateFile));
-	    StringTemplateGroup stg = new StringTemplateGroup(template);
+	    //Reader template = new InputStreamReader(Vcalc_Test.class.getResourceAsStream(templateFile));
+	    //StringTemplateGroup stg = new StringTemplateGroup(template);
 
 	    // nodes.reset();
-	    Templater templater = new Templater(nodes);
-	    templater.setTemplateLib(stg);
-	    System.out.println(templater.program().getTemplate().toString());
+	    //Templater templater = new Templater(nodes);
+	    //templater.setTemplateLib(stg);
+	    //System.out.println(templater.program().getTemplate().toString());
 	}
+	**/
     }
 }

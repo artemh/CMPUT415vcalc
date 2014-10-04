@@ -58,7 +58,15 @@ multiplication
   ;
   
 index
-  : term ('[' expression ']')?
+  : range ('[' e=expression ']')?
+  		-> {$e.tree != null}? ^(INDEX range expression)
+        -> range   
+  ;
+  
+range 
+  :	from=term ('..' to=term)?
+  	 -> {$to.tree != null}? ^('..' $from $to)
+     -> term 
   ;
   
 term
@@ -67,7 +75,6 @@ term
   | '('! expression ')'!
   | generator
   | filter
-  | range
   ;
   
 statement
@@ -101,14 +108,6 @@ filter
   : FILTER '(' VARNUM IN e1=expression '|' e2=expression ')'
   -> ^(FILT VARNUM $e1 $e2)
   ;
-  
-   
-range
-  : INTEGER '..'^ INTEGER
-  | INTEGER '..'^ VARNUM
-  | VARNUM '..'^ INTEGER
-  | VARNUM '..'^ VARNUM
-  ;  
      
 IF : 'if';
 FI : 'fi';
