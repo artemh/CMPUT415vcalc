@@ -149,19 +149,7 @@ expression returns [Evaluator e]
   | ^(INDEX op1=expression op2=expression)
     { $e = new EvaluatorIndex($op1.e, $op2.e); }
   | VARNUM 
-  	// Resolve the variable to a value in the current scope,
-  	// get it's type and create the type appropriate evaluator.
-  	{
-  		Symbol S = currentScope.resolve($VARNUM.text); 	// Need this for type checking
-  		Type type = S.getType();
-  		if (type.getName().equals("int")) {
-  			Integer value = (Integer)currentScope.getValue($VARNUM.text);
-  			$e = new EvaluatorInt(value);
-  		} else {
-  			ArrayList<Integer> value = (ArrayList<Integer>)currentScope.getValue($VARNUM.text);
-  			$e = new EvaluatorVec(value);
-  		}
-  	}
+  	{ $e = new EvaluatorVar(currentScope, $VARNUM.text);	}
   | INTEGER
   	{ $e = new EvaluatorInt(Integer.parseInt($INTEGER.text)); }
   ;
