@@ -15,7 +15,6 @@ public class EvaluatorGenerator implements Evaluator {
 
 	@Override
 	public Object evaluate() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
