@@ -34,7 +34,12 @@ public abstract class BaseScope implements Scope {
 	}
 	
 	public void setValue(String name, Object val) {
-		objects.put(name, val);
+		Object s = objects.get(name);
+		if (s != null) {
+			objects.put(name, val);
+		} else if (enclosingScope != null) {
+			((BaseScope)enclosingScope).objects.put(name, val);
+		}
 	}
 	
 	public void define(Symbol s) {

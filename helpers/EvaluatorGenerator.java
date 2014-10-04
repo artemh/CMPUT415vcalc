@@ -39,12 +39,14 @@ public class EvaluatorGenerator implements Evaluator {
 			throw new RuntimeException("Type check error. Generator's expression must evaluate to an integer.");
 		}
 		
+		VarSymbol S = new VarSymbol(var, integer, 0);
+		scope.define(S);
+		
 		ArrayList<Integer> rlist = (ArrayList<Integer>)range.evaluate();
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		
 		for (int i : rlist) {
-			VarSymbol S = new VarSymbol(var, integer, i);
-			scope.define(S);
+			((BaseScope)scope).setValue(var, i);
 			result.add((Integer)expression.evaluate());
 		}
 		
