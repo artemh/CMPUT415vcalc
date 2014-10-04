@@ -24,9 +24,16 @@ declaration
   : ^(DECL type VARNUM exp=expression)
   	// Call evaluate on expression's evaluator and declare the variable in the current scope
   	{
-  		Integer value = (Integer)$exp.e.evaluate();
-  		VarSymbol S = new VarSymbol($VARNUM.text, $type.tsym, value);
-  		currentScope.define(S);
+  		Type type = $type.tsym;
+  		if (type.getName().equals("int")) {
+  			Integer value = (Integer)$exp.e.evaluate();
+  			VarSymbol S = new VarSymbol($VARNUM.text, $type.tsym, value);
+  			currentScope.define(S);
+  		} else {
+  			ArrayList<Integer> value = (ArrayList<Integer>)$exp.e.evaluate();
+  			VarSymbol S = new VarSymbol($VARNUM.text, $type.tsym, value);
+  			currentScope.define(S);
+  		}
   	}
   ;
   
@@ -49,7 +56,7 @@ statement
   // for expr, ANTLR places that code immediately after the LOOPSTAT token,
   // but there is an additional <DOWN> token before the position we actually
   // want to be at, needing the + 1
-  | ^(LOOPSTAT { int expr = input.index() + 1; } exp=expression { int block = input.index(); } .) 
+  | ^(LOOPSTAT { int expr = input.index() + 1; } . { int block = input.index(); } .) 
   {
     int next = input.index();
     input.seek(expr);
@@ -70,9 +77,12 @@ statement
   		Type type = eval.getType();
   		if (type.getName().equals("int")) {
   			Integer value = (Integer)eval.evaluate(); 
-  			System.out.println(value);	 
+  			System.out.println(value + "\n");	 
   		} else if (type.getName().equals("vector")) {
-  			System.out.println("[ " + "Can't print vectors yet" + " ]");
+  		  	ArrayList<Integer> vector = (ArrayList<Integer>)eval.evaluate(); 
+  			System.out.print("[ ");
+  			for (Integer i : vector) { System.out.print(i + " "); }
+  			System.out.print("]\n");
   		}
   	}
   | ^(ASSIGN VARNUM exp=expression)
@@ -130,13 +140,18 @@ expression returns [Evaluator e]
     { $e = new EvaluatorIndex($op1.e, $op2.e); }
   | VARNUM 
   	// Resolve the variable to a value in the current scope,
-  	// get it's type and pass to the appropriate evaluator.
+  	// get it's type and create the type appropriate evaluator.
   	{
   		Symbol S = currentScope.resolve($VARNUM.text); 	// Need this for type checking
-  		Integer value = (Integer)currentScope.getValue($VARNUM.text);
-  		$e = new EvaluatorInt(value);
+  		Type type = S.getType();
+  		if (type.getName().equals("int")) {
+  			Integer value = (Integer)currentScope.getValue($VARNUM.text);
+  			$e = new EvaluatorInt(value);
+  		} else {
+  			ArrayList<Integer> value = (ArrayList<Integer>)currentScope.getValue($VARNUM.text);
+  			$e = new EvaluatorVec(value);
+  		}
   	}
-    // OR { $e = new EvaluatorVec(VARNUM); } 
   | INTEGER
   	{ $e = new EvaluatorInt(Integer.parseInt($INTEGER.text)); }
   ;

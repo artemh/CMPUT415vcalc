@@ -11,12 +11,10 @@ public class EvaluatorMult implements Evaluator {
 	{
 		this.lhs = lhs;
 		this.rhs = rhs;
-		Type typeint = new BuiltInTypeSymbol("int");
-		Type typevector = new BuiltInTypeSymbol("vector");
-		if ((lhs.getType() == typevector) || (rhs.getType() == typevector)) {
-			type = typevector;
+		if ((lhs.getType().getName().equals("vector")) || (rhs.getType().getName().equals("vector"))) {
+			type = new BuiltInTypeSymbol("vector");
 		} else {
-			type = typeint;
+			type = new BuiltInTypeSymbol("int");
 		}
 	}
 	

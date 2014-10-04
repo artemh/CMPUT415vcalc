@@ -4,7 +4,7 @@ public class VarSymbol extends Symbol {
 		super(name, type);
 	}
 	
-	public VarSymbol(String name, Type type, Integer value) {
+	public VarSymbol(String name, Type type, Object value) {
 		super(name, type, value);
 	}
 	

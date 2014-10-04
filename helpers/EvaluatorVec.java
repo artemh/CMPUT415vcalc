@@ -1,22 +1,24 @@
 package helpers;
 
+import java.util.ArrayList;
+
 public class EvaluatorVec implements Evaluator {
 	Type type;
-	String name;
+	ArrayList<Integer> value;
 	
-	public EvaluatorVec(String name, Type type)
+	public EvaluatorVec(ArrayList<Integer> value)
 	{
-		this.name = name;
-		this.type = type;
+		this.value = value;
+		type = new BuiltInTypeSymbol("vector");
+	}
+
+	@Override
+	public Object evaluate() {
+		return value;
 	}
 
 	@Override
 	public Type getType() {
 		return type;
-	}
-
-	@Override
-	public Object evaluate() {
-		return null;
 	}
 }
