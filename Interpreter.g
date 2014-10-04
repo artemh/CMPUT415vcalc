@@ -46,13 +46,20 @@ statement
   {
     int next = input.index();
     // need to do type checking here
-    int cond = (Integer)$exp.e.evaluate();
-    if (cond != 0) {
-      input.seek(block);
-      block();
-    }
-    input.seek(next);
-   }
+    Evaluator eval = $exp.e;
+    Type type = eval.getType();
+    if (type.getName().equals("int")) {
+	    int cond = (Integer)eval.evaluate();
+	    if (cond != 0) {
+	      input.seek(block);
+	      block();
+	    }
+	    input.seek(next);
+	  } else {
+	    System.err.println("Type check error. Conditional must be an integer!");
+	    System.exit(1);
+	  }
+	}
   // for expr, ANTLR places that code immediately after the LOOPSTAT token,
   // but there is an additional <DOWN> token before the position we actually
   // want to be at, needing the + 1
@@ -61,14 +68,21 @@ statement
     int next = input.index();
     input.seek(expr);
     // need to do type checking here
-    int cond = (Integer)expression().evaluate();
-    while (cond != 0) {
-      input.seek(block);
-      block();
-      input.seek(expr);
-      cond = (Integer)expression().evaluate();
+    Evaluator eval = expression();
+    Type type = eval.getType();
+    if (type.getName().equals("int")) {
+      cond = eval.evaluate();
+	    while (cond != 0) {
+	      input.seek(block);
+	      block();
+	      input.seek(expr);
+	      cond = (Integer)expression().evaluate();
+	    }
+	    input.seek(next);
+	  } else {
+	    System.err.println("Type check error. Conditional must be an integer!");
+      System.exit(1);
     }
-    input.seek(next);
   }
   | ^(PRINTSTAT exp=expression)
   	//Call evaluate on expression's evaluator and print the result
