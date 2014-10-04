@@ -91,7 +91,7 @@ statement
   		Type type = eval.getType();
   		if (type.getName().equals("int")) {
   			Integer value = (Integer)eval.evaluate(); 
-  			System.out.println(value + "\n");	 
+  			System.out.println(value);	 
   		} else if (type.getName().equals("vector")) {
   		  	ArrayList<Integer> vector = (ArrayList<Integer>)eval.evaluate(); 
   			System.out.print("[ ");
