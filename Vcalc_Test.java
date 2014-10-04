@@ -30,11 +30,8 @@ public class Vcalc_Test {
 			"vector b = 0..2;\n" +
 			"vector err = 6..25;\n" + 
 			"print(v);\n"  +
-			"print(v[2]);\n" +
 			"print(b);\n" + 
-			"print(err);\n" + 
-			"print(v[b]);\n" + 
-			"print(v[err]);");
+			"print(v+b);");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
