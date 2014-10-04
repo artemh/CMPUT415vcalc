@@ -29,8 +29,7 @@ public class EvaluatorGreater implements Evaluator {
 			ArrayList<Integer> result = new ArrayList<Integer>();
 			return result;
 		} else {
-			System.err.println("Unrecognized type: " + type.getName());
-			return null;
+			throw new RuntimeException("Unrecognized type: " + type.getName());
 		}
 	}
 }

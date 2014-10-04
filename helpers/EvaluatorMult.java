@@ -68,8 +68,7 @@ public class EvaluatorMult implements Evaluator {
 			}
 			return result;
 		} else {
-			System.err.println("Unrecognized type: " + type.getName());
-			return null;
+			throw new RuntimeException("Unrecognized type: " + type.getName());
 		}
 	}
 

@@ -31,7 +31,6 @@ public class EvaluatorMinus implements Evaluator {
 			return result;
 		} else if(type.getName().equals("vector")) {
 			ArrayList<Integer> result = new ArrayList<Integer>();
-			
 			// Three cases: (vec - int), (int-vec) and (vec-vec), result is the size of the larger of the two vectors
 			// for (int - vec) and (vec - int), promote integer to vector of integer's values.
 			Type lhsType = lhs.getType();
@@ -70,8 +69,7 @@ public class EvaluatorMinus implements Evaluator {
 			
 			return result;
 		} else {
-			System.err.println("Unrecognized type: " + type.getName());
-			return null;
+			throw new RuntimeException("Unrecognized type: " + type.getName());
 		}
 	}
 

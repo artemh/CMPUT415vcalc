@@ -1,9 +1,3 @@
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.Arrays;
-
-import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
@@ -14,7 +8,6 @@ import org.antlr.runtime.tree.DOTTreeGenerator;
 import org.antlr.runtime.tree.Tree;
 import org.antlr.stringtemplate.StringTemplate;
 */
-import org.antlr.stringtemplate.StringTemplateGroup;
 
 public class Vcalc_Test {
     public static void main(String[] args) throws RecognitionException {
@@ -26,12 +19,14 @@ public class Vcalc_Test {
 	}
 	**/
 	//ANTLRFileStream input = null;
-	ANTLRStringStream input = new ANTLRStringStream("vector v = 10..20;\n" + 
-			"vector b = 0..2;\n" +
-			"int i = 5;\n" +
-			"vector err = 6..15;\n" + 
+	ANTLRStringStream input = new ANTLRStringStream("vector v = 1..6;\n" + 
+			"vector b = 2..6;\n" +
+			"int l = 15;\n" +
+			"int i = 2;\n" +
+			"vector err = 1..15;\n" + 
 			"print(v);\n"  +
-			"print(100/v);");
+			"print(b);\n"  +
+			"print(v < b);");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);

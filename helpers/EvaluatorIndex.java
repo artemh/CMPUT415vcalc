@@ -17,8 +17,7 @@ public class EvaluatorIndex implements Evaluator {
 		Type indexType = index.getType();
 		if (!lhsType.getName().equals("vector"))
 			{
-				System.err.println("Type check error. Only vectors can be indexed.");
-				System.exit(1);
+				throw new RuntimeException("Type check error. Only vectors can be indexed.");
 			}
 		if ((indexType.getName().equals("vector"))) {
 			type = new BuiltInTypeSymbol("vector");
@@ -45,8 +44,7 @@ public class EvaluatorIndex implements Evaluator {
 			for (int i = 0; i < indexList.size(); i++) {
 				Integer iter = indexList.get(i);
 				if (iter > vecList.size() - 1) { 
-					System.err.println("Vector out of bounds.");
-					System.exit(1); 
+					throw new RuntimeException("Vector out of bounds.");
 				}
 				Integer item = vecList.get(iter);
 				retList.add(item);

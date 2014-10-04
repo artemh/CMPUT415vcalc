@@ -19,8 +19,7 @@ public class EvaluatorRange implements Evaluator {
 		// Is there a better way to do this? Overly verbose.
 		if(!lhsType.getName().equals(typeint.getName()) || !rhsType.getName().equals(typeint.getName()))
 			{
-				System.err.println("Type check error. Range must be specified with integers.");
-				System.exit(1);
+				throw new RuntimeException("Type check error. Range must be specified with integers.");
 			}
 	}
 	
@@ -33,6 +32,9 @@ public class EvaluatorRange implements Evaluator {
 	public Object evaluate() {
 		Integer lowerBound = (Integer)lhs.evaluate();
 		Integer upperBound = (Integer)rhs.evaluate();
+		if ((lowerBound.compareTo(upperBound)) != -1) {  
+			throw new RuntimeException("Range lower bound must be less than the upper bound.");  
+			}
 		ArrayList<Integer> vector = new ArrayList<Integer>();
 		for (int i = 0; i < (upperBound - lowerBound) + 1; i++){
 			vector.add(i, lowerBound+i);
