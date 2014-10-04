@@ -38,6 +38,8 @@ public class Vcalc_Test {
     		"vector k = filter(i in 1..10 | i > 5);\n" + 
 			"print(i);\n" + 
 			"print(k);\n" + 
+			"print(j);\n" + 
+			"j = k;\n" + 
 			"print(j);\n");
 	/**
 	try {

@@ -113,9 +113,15 @@ statement
     		$VARNUM.getLine());
     		System.exit(1);
     	}
-    	// For now, assume int
-    	Integer value = (Integer)eval.evaluate();
-    	((BaseScope)currentScope).setValue(S.getName(), value);
+    	if (lhsType.getName().equals("int")) {
+	    	Integer value = (Integer)eval.evaluate();
+	    	((BaseScope)currentScope).setValue(S.getName(), value);
+	    } else if (lhsType.getName().equals("vector")) {
+	      ArrayList<Integer> value = (ArrayList<Integer>)eval.evaluate();
+	      ((BaseScope)currentScope).setValue(S.getName(), value);
+	    } else {
+	      throw new RuntimeException("Error: unknown type");
+	    }
     }
   ;
   
