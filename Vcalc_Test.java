@@ -33,7 +33,7 @@ public class Vcalc_Test {
 			"print(v);\n"  +
 			"print(err);\n" + 
 			"print(v+err);" + 
-			"print(v+i);");
+			"print(20-v);");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);

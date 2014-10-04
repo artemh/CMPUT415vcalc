@@ -45,6 +45,7 @@ public class EvaluatorPlus implements Evaluator {
 				ArrayList<Integer> lhsVec = (ArrayList<Integer>)lhs.evaluate();	
 				Integer rhsInt = (Integer)rhs.evaluate();
 				Integer size = lhsVec.size();
+				// Perform element-wise addition
 				for (int i = 0; i < size; i++) {
 					result.add(i,rhsInt + lhsVec.get(i));
 				}
