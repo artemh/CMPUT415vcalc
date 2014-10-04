@@ -1,11 +1,13 @@
 package helpers;
 
+import java.util.ArrayList;
+
 public class EvaluatorPlus implements Evaluator {
 	Type type;
 	Evaluator lhs;
 	Evaluator rhs;
 	
-	EvaluatorPlus(Evaluator lhs, Evaluator rhs)
+	public EvaluatorPlus(Evaluator lhs, Evaluator rhs)
 	{
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -20,7 +22,16 @@ public class EvaluatorPlus implements Evaluator {
 	
 	@Override
 	public Object evaluate() {
-		return null;
+		if(type.getName().equals("int")) {
+			Integer result = (Integer)lhs.evaluate()+(Integer)rhs.evaluate();
+			return result;
+		} else if(type.getName().equals("vector")) {
+			ArrayList<Integer> result = new ArrayList<Integer>();
+			return result;
+		} else {
+			System.err.println("Unrecognized type: " + type.getName());
+			return null;
+		}
 	}
 
 	@Override

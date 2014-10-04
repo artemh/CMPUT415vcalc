@@ -4,7 +4,7 @@ public class EvaluatorInt implements Evaluator {
 	Type type;
 	Integer value;
 	
-	EvaluatorInt(Integer value)
+	public EvaluatorInt(Integer value)
 	{
 		this.value = value;
 		type = new BuiltInTypeSymbol("int");

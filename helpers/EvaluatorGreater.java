@@ -1,11 +1,13 @@
 package helpers;
 
+import java.util.ArrayList;
+
 public class EvaluatorGreater implements Evaluator {
 	Type type;
 	Evaluator lhs;
 	Evaluator rhs;
 	
-	EvaluatorGreater(Evaluator lhs, Evaluator rhs)
+	public EvaluatorGreater(Evaluator lhs, Evaluator rhs)
 	{
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -19,7 +21,17 @@ public class EvaluatorGreater implements Evaluator {
 
 	@Override
 	public Object evaluate() {
-		return null;
+		if(type.getName().equals("int")) {
+			Boolean result = (Integer)lhs.evaluate()>(Integer)rhs.evaluate();
+			return result ? 1 : 0;
+		} else if(type.getName().equals("vector")) {
+			ArrayList<Integer> result = new ArrayList<Integer>();
+			return result;
+		} else {
+			System.err.println("Unrecognized type: " + type.getName());
+			return null;
+		}
 	}
-
 }
+
+

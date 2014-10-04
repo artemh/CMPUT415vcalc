@@ -33,6 +33,10 @@ public abstract class BaseScope implements Scope {
 		return null;
 	}
 	
+	public void setValue(String name, Object val) {
+		objects.put(name, val);
+	}
+	
 	public void define(Symbol s) {
 		s.scope = this;
 		symbols.put(s.name, s);

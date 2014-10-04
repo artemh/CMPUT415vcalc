@@ -5,7 +5,7 @@ public class EvaluatorRange implements Evaluator {
 	Evaluator lhs;
 	Evaluator rhs;
 	
-	EvaluatorRange(Evaluator lhs, Evaluator rhs)
+	public EvaluatorRange(Evaluator lhs, Evaluator rhs)
 	{
 		this.lhs = lhs;
 		this.rhs = rhs;

@@ -26,7 +26,10 @@ public class Vcalc_Test {
 	}
 	**/
 	//ANTLRFileStream input = null;
-	ANTLRStringStream input = new ANTLRStringStream("vector vec = 24..7[2];");
+	ANTLRStringStream input = new ANTLRStringStream("int i = 3;\n" + 
+			"int b = 15;\n" +
+			"i = 5+b;\n" + 
+			"print(i);\n");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
@@ -41,7 +44,7 @@ public class Vcalc_Test {
 	vCalcParser parser = new vCalcParser(tokenStream);
 	vCalcParser.program_return entry = parser.program();
 	Object ast = entry.getTree();
-	System.out.println(entry.tree.toStringTree());
+	//System.out.println(entry.tree.toStringTree());
 	/*
 	DOTTreeGenerator gen = new DOTTreeGenerator();
     StringTemplate st = gen.toDOT((Tree) ast);
@@ -53,6 +56,11 @@ public class Vcalc_Test {
 	// Pass over to verify no variable misuse
 	//Defined defined = new Defined(nodes);
 	//defined.downup(ast);
+	
+	// nodes.reset();
+    Interpreter interpreter = new Interpreter(nodes);
+    interpreter.program();
+	
 	/**
 	if (args[1].equals("int")) {
 	    // Run it through the Interpreter

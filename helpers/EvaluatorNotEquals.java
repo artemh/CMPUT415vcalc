@@ -1,11 +1,13 @@
 package helpers;
 
+import java.util.ArrayList;
+
 public class EvaluatorNotEquals implements Evaluator {
 	Type type;
 	Evaluator lhs;
 	Evaluator rhs;
 	
-	EvaluatorNotEquals(Evaluator lhs, Evaluator rhs)
+	public EvaluatorNotEquals(Evaluator lhs, Evaluator rhs)
 	{
 		this.lhs = lhs;
 		this.rhs = rhs;
@@ -19,7 +21,17 @@ public class EvaluatorNotEquals implements Evaluator {
 
 	@Override
 	public Object evaluate() {
-		return null;
+
+		if(type.getName().equals("int")) {
+			Boolean result = (Integer)lhs.evaluate()!=(Integer)rhs.evaluate();
+			return result ? 1 : 0;
+		} else if(type.getName().equals("vector")) {
+			ArrayList<Integer> result = new ArrayList<Integer>();
+			return result;
+		} else {
+			System.err.println("Unrecognized type: " + type.getName());
+			return null;
+		}
 	}
 
 }

@@ -1,6 +1,6 @@
 package helpers;
 public class SymbolTable {
-	GlobalScope globals = new GlobalScope();
+	public GlobalScope globals = new GlobalScope();
 	
 	public SymbolTable() {
 		initTypeSystem();

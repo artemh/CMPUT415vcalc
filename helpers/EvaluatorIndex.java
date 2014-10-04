@@ -5,7 +5,7 @@ public class EvaluatorIndex implements Evaluator {
 	Evaluator vector;
 	Evaluator integer;
 	
-	EvaluatorIndex(Evaluator vector, Evaluator integer)
+	public EvaluatorIndex(Evaluator vector, Evaluator integer)
 	{
 		this.vector = vector;
 		this.integer = integer;

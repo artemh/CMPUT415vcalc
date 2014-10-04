@@ -6,7 +6,7 @@ public class EvaluatorFilter implements Evaluator {
 	Evaluator range;
 	Evaluator expression;
 	
-	EvaluatorFilter(String var, Evaluator range, Evaluator expression)
+	public EvaluatorFilter(String var, Evaluator range, Evaluator expression)
 	{
 		this.variable = var;
 		this.range = range;

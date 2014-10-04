@@ -29,6 +29,10 @@ public class Symbol {
 		return name;
 	}
 	
+	public Type getType() {
+		return type;
+	}
+	
 	public String toString() {
 		if ( type != null ) { 
 			return '<' + getName() + ":" + type + '>';
