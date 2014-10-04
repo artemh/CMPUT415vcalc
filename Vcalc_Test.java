@@ -23,7 +23,7 @@ public class Vcalc_Test {
 			"vector b = 2..6;\n" +
 			"int l = 15;\n" +
 			"int i = 2;\n" +
-			"if (b)\n" +
+			"if (0)\n" +
 			"print(b);\n" +
 			"fi;\n" +
 			"vector err = 1..15;\n" + 

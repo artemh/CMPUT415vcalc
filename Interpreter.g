@@ -71,7 +71,7 @@ statement
     Evaluator eval = expression();
     Type type = eval.getType();
     if (type.getName().equals("int")) {
-      cond = eval.evaluate();
+      int cond = (Integer)eval.evaluate();
 	    while (cond != 0) {
 	      input.seek(block);
 	      block();
