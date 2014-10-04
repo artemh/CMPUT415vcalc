@@ -45,7 +45,7 @@ public class EvaluatorNotEquals implements Evaluator {
 				ArrayList<Integer> rhsVec = (ArrayList<Integer>)rhs.evaluate();	
 				Integer size = rhsVec.size();
 				for (int i = 0; i < size; i++) {
-					result.add(lhsInt < rhsVec.get(i) ? 1 : 0);
+					result.add(lhsInt != rhsVec.get(i) ? 1 : 0);
 				}
 			} else if (rhsType.getName().equals("int")) {
 				// promote rhs, since we know lhs is a vector
@@ -54,7 +54,7 @@ public class EvaluatorNotEquals implements Evaluator {
 				Integer size = lhsVec.size();
 				// Perform element-wise addition
 				for (int i = 0; i < size; i++) {
-					result.add(lhsVec.get(i) < rhsInt ? 1 : 0);
+					result.add(lhsVec.get(i) != rhsInt ? 1 : 0);
 				}
 			} else {
 				// vec != vec

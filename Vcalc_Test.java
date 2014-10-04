@@ -25,8 +25,7 @@ public class Vcalc_Test {
 			"int i = 2;\n" +
 			"vector err = 1..15;\n" + 
 			"print(v);\n"  +
-			"print(b);\n"  +
-			"print(v != b);");
+			"print(v==5);");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
