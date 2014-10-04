@@ -24,10 +24,10 @@ public class Vcalc_Test {
 			"vector c = b[3..4];\n" +
 			"int l = 15;\n" +
 			"int i = 2;\n" +
-			"if (0)\n" +
-			"print(b);\n" +
-			"fi;\n" +
 			"vector err = 1..15;\n" + 
+			"if (c)\n" +
+			"print(b);\n" +
+			"pool;\n" +
 			"print(v);\n"  +
 			"print(b);\n"  +
 			"print(c);\n"  +
