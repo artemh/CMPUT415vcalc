@@ -161,12 +161,9 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(FILT VARNUM domain=expression cond=expression)
+  : ^(FILT VARNUM op1=expression op2=expression)
     { 
-    	Type type = new BuiltInTypeSymbol("int");
-  		VarSymbol S = new VarSymbol($VARNUM.text, type);
-  		currentScope.define(S);
-    	$e = new EvaluatorFilter($VARNUM.text, $domain.e, $cond.e, (BaseScope)currentScope); 
+    	$e = new EvaluatorFilter(currentScope, $VARNUM.text, $op1.e, $op2.e); 
     }
   ;
   
@@ -178,11 +175,9 @@ currentScope = new LocalScope(currentScope);
 currentScope = currentScope.getEnclosingScope();
 }
   :^(GEN VARNUM op1=expression op2=expression)
-  	// push new scope on the stack, define VARNUM, return evaluator
     { 
     $e = new EvaluatorGenerator(currentScope, $VARNUM.text, $op1.e, $op2.e); 
     }
-    // After, pop the local scope from the stack
   ;
   
 type returns [Type tsym]

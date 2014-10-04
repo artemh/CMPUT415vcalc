@@ -1,19 +1,21 @@
 package helpers;
 
+import java.util.ArrayList;
+
 public class EvaluatorFilter implements Evaluator {
 	Type type;
-	String variable;
 	Evaluator range;
 	Evaluator expression;
-	BaseScope scope;
+	Scope scope;
+	String var;
 	
-	public EvaluatorFilter(String var, Evaluator range, Evaluator expression, BaseScope scope)
+	public EvaluatorFilter(Scope scope, String var, Evaluator range, Evaluator expression)
 	{
-		this.variable = var;
+		type = new BuiltInTypeSymbol("vector");
 		this.range = range;
 		this.expression = expression;
 		this.scope = scope;
-		type = new BuiltInTypeSymbol("vector");
+		this.var = var;
 	}
 	
 	@Override
@@ -21,9 +23,33 @@ public class EvaluatorFilter implements Evaluator {
 		return type;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object evaluate() {
-		return null;
+		Type rtype = range.getType();
+		Type etype = expression.getType();
+		
+		Type integer = new BuiltInTypeSymbol("int");
+		Type vector = type;
+		
+		if (!(rtype.getName().equals(vector.getName()))) {
+			throw new RuntimeException("Type check error. Filter's domain must be a vector.");
+		}
+		if (!(etype.getName().equals(integer.getName()))) {
+			throw new RuntimeException("Type check error. Filter's expression must evaluate to an integer.");
+		}
+		
+		ArrayList<Integer> rlist = (ArrayList<Integer>)range.evaluate();
+		ArrayList<Integer> result = new ArrayList<Integer>();
+		
+		for (int i : rlist) {
+			VarSymbol S = new VarSymbol(var, integer, i);
+			scope.define(S);
+			Integer comp = (Integer)expression.evaluate();
+			if(comp != 0) {result.add(i);}
+		}
+		
+		return result;
 	}
 
 }

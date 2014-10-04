@@ -23,6 +23,7 @@ public class EvaluatorGenerator implements Evaluator {
 		return type;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Object evaluate() {
 		Type rtype = range.getType();
