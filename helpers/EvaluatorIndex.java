@@ -46,7 +46,7 @@ public class EvaluatorIndex implements Evaluator {
 				Integer iter = indexList.get(i);
 				if (iter > vecList.size() - 1) { 
 					System.err.println("Vector out of bounds.");
-					System.exit(1);
+					System.exit(1); 
 				}
 				Integer item = vecList.get(iter);
 				retList.add(item);
