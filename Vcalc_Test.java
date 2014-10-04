@@ -26,7 +26,7 @@ public class Vcalc_Test {
 	}
 	**/
 	//ANTLRFileStream input = null;
-	ANTLRStringStream input = new ANTLRStringStream("int i = [j in 1..3 | j * 2][1];\n");
+	ANTLRStringStream input = new ANTLRStringStream("vector vec = 24..7[2];");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);

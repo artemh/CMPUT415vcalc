@@ -8,7 +8,6 @@ options {
 
 @header {
 	import helpers.*;
-
 }
 
 program
@@ -18,6 +17,7 @@ program
   
 declaration
   : ^(DECL type VARNUM exp=expression)
+  	// Call evaluate on expression's evaluator and declare the variable in the current scope
   ;
   
 // The idea on how to do if and loop statements in the interpreter
@@ -52,7 +52,9 @@ statement
     input.seek(next);
   }
   | ^(PRINTSTAT exp=expression)
+  	//Call evaluate on expression's evaluator and print the result
   | ^(ASSIGN VARNUM exp=expression)
+    //Call evaluate on expression's evaluator and assign to variable
   ;
   
 block
@@ -61,20 +63,40 @@ block
 
 expression returns [Evaluator e]
   : ^('==' op1=expression op2=expression)
+   	{ $e = new EvaluatorEquals($op1.e, $op2.e); }
   | ^('!=' op1=expression op2=expression)
+   	{ $e = new EvaluatorNotEquals($op1.e, $op2.e); }
   | ^('<' op1=expression op2=expression)
+   	{ $e = new EvaluatorLess($op1.e, $op2.e); }
   | ^('>' op1=expression op2=expression)
+  	{ $e = new EvaluatorGreater($op1.e, $op2.e); }
   | ^('+' op1=expression op2=expression)
   	{ $e = new EvaluatorPlus($op1.e, $op2.e); }
   | ^('-' op1=expression op2=expression)
+  	{ $e = new EvaluatorMinus($op1.e, $op2.e); }
   | ^('*' op1=expression op2=expression)
+  	{ $e = new EvaluatorMult($op1.e, $op2.e); }
   | ^('/' op1=expression op2=expression)
+  	{ $e = new EvaluatorDivide($op1.e, $op2.e); }
   | ^('..' op1=expression op2=expression)
+  	{ $e = new EvaluatorRange($op1.e, $op2.e); }
   | ^(GEN VARNUM op1=expression op2=expression)
+  	// push new scope on the stack, define VARNUM, return evaluator
+    { $e = new EvaluatorGenerator($op1.e, $op2.e); }
+    // After, pop the local scope from the stack
   | ^(FILT VARNUM op1=expression op2=expression)
-  | ^(INDEX VARNUM op=expression)
+    // push new scope on the stack, define VARNUM, return evaluator
+    { $e = new EvaluatorFilter($VARNUM.text, $op1.e, $op2.e); }
+    // After, pop the local scope from the stack
+  | ^(INDEX op1=expression op2=expression)
+    { $e = new EvaluatorIndex($op1.e, $op.e); }
   | VARNUM 
+  	// Resolve the variable to a value in the current scope,
+  	// get it's type and pass to the appropriate evaluator.
+    { $e = new EvaluatorInt(VARNUM); }
+    { $e = new EvaluatorVec(VARNUM); } //OR
   | INTEGER
+  	{ $e = new EvaluatorInt(INTEGER); }
   ;
   
 type
