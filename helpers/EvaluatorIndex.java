@@ -30,6 +30,14 @@ public class EvaluatorIndex implements Evaluator {
 	
 	@Override
 	public Type getType() {
+		Type vecType = new BuiltInTypeSymbol("vector");
+		for(Evaluator index : indeces) {
+			if(index.getType().getName().equals("int")) {
+				return new BuiltInTypeSymbol("int");
+			} else {
+				type = vecType;
+			}
+		}
 		return type;
 	}
 
@@ -45,6 +53,7 @@ public class EvaluatorIndex implements Evaluator {
 				if (indexInt > retVec.size() - 1) { 
 					throw new RuntimeException("Vector out of bounds.");
 				}
+				type = new BuiltInTypeSymbol("int");
 				return retVec.get(indexInt);
 			} else {
 				// Calculate the new vector, continue.
@@ -59,6 +68,7 @@ public class EvaluatorIndex implements Evaluator {
 					Integer item = retVec.get(iter);
 					inter.add(item);
 				}
+				type = new BuiltInTypeSymbol("vector");
 				retVec = inter;
 			}
 		}

@@ -8,6 +8,10 @@ options {
   ASTLabelType = CommonTree;
 }
 
+@header {
+	import helpers.*;
+}
+
 @members {
   public static SymbolTable symbols = new SymbolTable();
 }
@@ -17,20 +21,25 @@ bottomup: check;
 
 define
   : ^(DECL VARNUM .) {
+  /**
     if (symbols.resolve($VARNUM.text) == null) {
       symbols.define(new VarSymbol($VARNUM.text, (Type)symbols.resolve("int")));
     } else {
       System.err.print("Error: variable " + $VARNUM.text + " declared more than once");
       System.exit(1);
     }
+    **/
   }
   ;
 
 check
   : VARNUM {
+  /**
       if (symbols.resolve($VARNUM.text) == null) {
          System.err.print("Undefined variable " + $VARNUM.text);
          System.exit(1);
       }
+          **/
+      
     }
   ;

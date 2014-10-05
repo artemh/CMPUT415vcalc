@@ -28,11 +28,16 @@ public class Vcalc_Test {
 			"print(v5);");
 			**/
 	
-	
-    ANTLRStringStream input = new ANTLRStringStream("vector v1 = 1..10;\n" + 
-    		"int v5 = 1..10;\n" + 
-    	   	"print(v6);\n");
-    	   	
+    ANTLRStringStream input = new ANTLRStringStream("int a = 1;\n" + 
+    		"int b = 2;\n" + 
+    		"vector v = 1..10;\n" + 
+    		"vector w = 1..3;\n" + 
+    		"\n" + 
+    		"print(v[a]);\n" + 
+    		"print(v[w]);\n" + 
+    		"print(v[w][b]);\n" + 
+    		"");
+    
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
@@ -61,7 +66,6 @@ public class Vcalc_Test {
 	//defined.downup(ast);
 	Validator validator = new Validator(nodes);
 	validator.program();
-	
 	
 	nodes.reset();
     Interpreter interpreter = new Interpreter(nodes);

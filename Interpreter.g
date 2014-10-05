@@ -89,6 +89,9 @@ statement
   	{
   		Evaluator eval = $exp.e;
   		Type type = eval.getType();
+  		if (type == null) {
+  			System.out.println("LLL");
+  		}
   		if (type.getName().equals("int")) {
   			Integer value = (Integer)eval.evaluate(); 
   			System.out.println(value);	 
