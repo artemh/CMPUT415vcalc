@@ -32,7 +32,7 @@ public class EvaluatorRange implements Evaluator {
 	public Object evaluate() {
 		Integer lowerBound = (Integer)lhs.evaluate();
 		Integer upperBound = (Integer)rhs.evaluate();
-		if ((lowerBound.compareTo(upperBound)) < 0) {  
+		if ((lowerBound.compareTo(upperBound)) > 0) {  
 			throw new RuntimeException("Range lower bound must be less than the upper bound.");  
 			}
 		ArrayList<Integer> vector = new ArrayList<Integer>();

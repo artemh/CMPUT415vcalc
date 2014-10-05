@@ -33,11 +33,15 @@ public class Vcalc_Test {
 			"print(c);\n"  +
 			"print(v<b);");
 			*/
-    ANTLRStringStream input = new ANTLRStringStream("int a = 1;\n" +     		
-			"vector v1 = 1..10;\n" +
-    		"vector v2 = 2..8;\n" +
-			"print (v1 * v2);\n" +
-    		"");
+    ANTLRStringStream input = new ANTLRStringStream("vector v1 = 1..10;\n" + 
+    		"vector v2 = 2..8;\n" + 
+    		"vector v3 = v1 * 2;\n" + 
+    		"vector v4 = [i in (v1 * v2) + (v3 / 2) | i * 3 ];\n" + 
+    		"vector v5 = filter(i in v4 | (i > 50) * (i < 100) );\n" + 
+    		"print(v3);\n" +
+    		"print(v1 * v2);\n" +
+    		"print(v4);\n" +
+    		"print(v5);");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
@@ -52,7 +56,7 @@ public class Vcalc_Test {
 	vCalcParser parser = new vCalcParser(tokenStream);
 	vCalcParser.program_return entry = parser.program();
 	Object ast = entry.getTree();
-	System.out.println(entry.tree.toStringTree());
+	//System.out.println(entry.tree.toStringTree());
 	/*
 	DOTTreeGenerator gen = new DOTTreeGenerator();
     StringTemplate st = gen.toDOT((Tree) ast);
