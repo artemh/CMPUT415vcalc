@@ -57,7 +57,7 @@ public class EvaluatorPlus implements Evaluator {
 				Integer rhsSize = rhsVec.size();
 				// Size needs to be that of the smaller vector, it will determine how many additions we perform 
 				Integer smallerSize = lhsSize.compareTo(rhsSize) > 0 ? rhsSize : lhsSize;
-				result = (lhsSize.compareTo(rhsSize) > 0) ? lhsVec : rhsVec;
+				result = (lhsSize.compareTo(rhsSize) > 0) ? new ArrayList<Integer>(lhsVec) : new ArrayList<Integer>(rhsVec);
 				// Perform element-wise addition
 				for (int i = 0; i < smallerSize; i++) {
 					result.set(i, lhsVec.get(i) + rhsVec.get(i));

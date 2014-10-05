@@ -35,13 +35,8 @@ public class Vcalc_Test {
 			*/
     ANTLRStringStream input = new ANTLRStringStream("vector v1 = 1..10;\n" + 
     		"vector v2 = 2..8;\n" + 
-    		"vector v3 = v1 * 2;\n" + 
-    		"vector v4 = [i in (v1 * v2) + (v3 / 2) | i * 3 ];\n" + 
-    		"vector v5 = filter(i in v4 | (i > 50) * (i < 100) );\n" + 
-    		"print(v3);\n" +
-    		"print(v1 * v2);\n" +
-    		"print(v4);\n" +
-    		"print(v5);");
+    		"vector v3 = v1 * v2;\n" + 
+    		"print(v1);\n");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
