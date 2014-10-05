@@ -152,7 +152,7 @@ expression returns [Evaluator e]
   	{ $e = $generator.e; }
   | filter
   	{ $e = $filter.e; }
-  | ^(INDEX op1=expression op2=expression)
+  | ^(INDEX expression+)
     { $e = new EvaluatorIndex($op1.e, $op2.e); }
   | VARNUM 
   	{ $e = new EvaluatorVar(currentScope, $VARNUM.text);	}

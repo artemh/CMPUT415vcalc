@@ -58,15 +58,15 @@ multiplication
   ;
   
 index
-  : range ('[' e=expression ']')?
-  		-> {$e.tree != null}? ^(INDEX range expression)
+  : range ('[' e=expression  ']')* 
+  		-> {$e.tree != null}? ^(INDEX range $e*)
         -> range   
   ;
   
 range 
   :	from=term ('..' to=term)?
-  	 -> {$to.tree != null}? ^('..' $from $to)
-     -> term 
+	  	 -> {$to.tree != null}? ^('..' $from $to)
+	     -> term 
   ;
   
 term

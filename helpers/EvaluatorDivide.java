@@ -61,7 +61,7 @@ public class EvaluatorDivide implements Evaluator {
 				Integer rhsSize = rhsVec.size();
 				// Size needs to be that of the smaller vector, it will determine how many additions we perform 
 				Integer smallerSize = lhsSize > rhsSize ? rhsSize : lhsSize;
-				result = lhsSize > rhsSize ? lhsVec : rhsVec;
+				result = (lhsSize.compareTo(rhsSize)==1) ? lhsVec : rhsVec;
 				// Perform element-wise addition
 				for (int i = 0; i < smallerSize; i++) {
 					result.set(i, lhsVec.get(i) / rhsVec.get(i));
