@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class EvaluatorIndex implements Evaluator {
 	Type type;
 	Evaluator vector;
-	Evaluator index;
 	ArrayList<Evaluator> indeces;
 	
 	public EvaluatorIndex(Evaluator vector, ArrayList<Evaluator> index)
@@ -20,18 +19,12 @@ public class EvaluatorIndex implements Evaluator {
 			{
 				throw new RuntimeException("Type check error. Only vectors can be indexed.");
 			}
-		/**
-		if ((indexType.getName().equals("vector"))) {
-			type = new BuiltInTypeSymbol("vector");
-		} else {
-			type = new BuiltInTypeSymbol("int");
-		} **/
 	}
 	
 	@Override
 	public Type getType() {
 		Type vecType = new BuiltInTypeSymbol("vector");
-		for(Evaluator index : indeces) {
+		for (Evaluator index : indeces) {
 			if(index.getType().getName().equals("int")) {
 				return new BuiltInTypeSymbol("int");
 			} else {
@@ -46,12 +39,16 @@ public class EvaluatorIndex implements Evaluator {
 	public Object evaluate() {
 		ArrayList<Integer> retVec = new ArrayList<Integer>((ArrayList<Integer>)vector.evaluate());
 		
-		for(Evaluator index : indeces) {
+		for (int k = 0; k < indeces.size(); k++) {	
+			Evaluator index = indeces.get(k);
 			if(index.getType().getName().equals("int")) {
 				// Get the right item, return it 
 				Integer indexInt = (Integer)index.evaluate();
 				if (indexInt > retVec.size() - 1) { 
 					throw new RuntimeException("Vector out of bounds.");
+				}
+				if (k < (indeces.size()-1)) {
+					throw new RuntimeException("Type check error. Only vectors can be indexed.");
 				}
 				type = new BuiltInTypeSymbol("int");
 				return retVec.get(indexInt);

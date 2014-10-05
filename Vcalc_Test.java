@@ -35,7 +35,7 @@ public class Vcalc_Test {
     		"\n" + 
     		"print(v[a]);\n" + 
     		"print(v[w]);\n" + 
-    		"print(v[w][b]);\n" + 
+    		"print(v[w][b][1..2]);\n" + 
     		"");
     
 	/**
