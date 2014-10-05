@@ -1,8 +1,12 @@
+import java.io.InputStreamReader;
+import java.io.Reader;
+
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.TokenStream;
 import org.antlr.runtime.tree.BufferedTreeNodeStream;
+import org.antlr.stringtemplate.StringTemplateGroup;
 /*
 import org.antlr.runtime.tree.DOTTreeGenerator;
 import org.antlr.runtime.tree.Tree;
@@ -28,11 +32,7 @@ public class Vcalc_Test {
 			"print(v5);");
 			**/
 	
-    ANTLRStringStream input = new ANTLRStringStream("int a = 1;\n" + 
-    		"int b = 2;\n" + 
-    		"vector v = 1..10;\n" + 
-    		"vector w = 1..3;\n" + 
-    		"print(v-w);\n" +
+    ANTLRStringStream input = new ANTLRStringStream("print(42);" +
     		"");
     
 	/**
@@ -65,8 +65,15 @@ public class Vcalc_Test {
 	validator.program();
 	
 	nodes.reset();
-    Interpreter interpreter = new Interpreter(nodes);
-    interpreter.program();
+    //Interpreter interpreter = new Interpreter(nodes);
+    //interpreter.program();
+	Templater templater = new Templater(nodes);
+	String templateFile = "llvm.stg";
+
+    Reader template = new InputStreamReader(Vcalc_Test.class.getResourceAsStream(templateFile));
+    StringTemplateGroup stg = new StringTemplateGroup(template);
+    templater.setTemplateLib(stg);
+    System.out.println(templater.program().getTemplate().toString());
 	
 	/**
 	if (args[1].equals("int")) {

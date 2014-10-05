@@ -1,21 +1,21 @@
 group llvm;
 
-program(filename, decl1, decl2, stat) ::= <<
+program(filename, intInits, intNames, vecInits, vecNames, decl, stat) ::= <<
 ; ModuleID = '<filename>'
 
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
-<decl1:{d|<d>}>
-
 ; This prints integer %d followed by \n followed by string termination symbol
-@.str_int = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
-@.str_lbrack = private unnamed_addr constant [3 x i8] c"[ \00", align 1
-@.str_rbrack = private unnamed_addr constant [3 x i8] c" ]\00", align 1
+@.str.int = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+@.str.lbrack = private unnamed_addr constant [3 x i8] c"[ \00", align 1
+@.str.rbrack = private unnamed_addr constant [3 x i8] c" ]\00", align 1
+<decl:{d|<d>}>
 
 define i32 @main() nounwind uwtable {
-<decl2:{d|<d>}>
-<stat:{s|<s>}>
+  <intNames:{i|initInt(name=i, template=intInits.(i)}>
+  <vecNames:{v|initVec(name=v, template=vecInits.(v)}>
+  <stat:{s|<s>}>
 
   ret i32 0
 }
@@ -23,3 +23,23 @@ define i32 @main() nounwind uwtable {
 declare i32 @printf(i8*, ...)
 
 >>
+
+varnum(counter, name) ::= <<
+%<counter> = load i32* <name>
+>>
+
+integer(counter, value) ::= <<
+%<counter> = add i32 <value>, 0
+>>
+
+print(expr_counter, expr) ::= <<
+<expr>
+call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
+>>
+
+declInt(name) ::= <<
+@<name> = global i32 0, align 4
+
+>>
+
+initInt(
