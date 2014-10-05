@@ -45,7 +45,7 @@ public class EvaluatorNotEquals implements Evaluator {
 				ArrayList<Integer> rhsVec = (ArrayList<Integer>)rhs.evaluate();	
 				Integer size = rhsVec.size();
 				for (int i = 0; i < size; i++) {
-					result.add(lhsInt != rhsVec.get(i) ? 1 : 0);
+					result.add(lhsInt.compareTo(rhsVec.get(i)) != 0 ? 1 : 0);
 				}
 			} else if (rhsType.getName().equals("int")) {
 				// promote rhs, since we know lhs is a vector
@@ -54,7 +54,7 @@ public class EvaluatorNotEquals implements Evaluator {
 				Integer size = lhsVec.size();
 				// Perform element-wise addition
 				for (int i = 0; i < size; i++) {
-					result.add(lhsVec.get(i) != rhsInt ? 1 : 0);
+					result.add(lhsVec.get(i).compareTo(rhsInt) != 0 ? 1 : 0);
 				}
 			} else {
 				// vec != vec
@@ -65,7 +65,7 @@ public class EvaluatorNotEquals implements Evaluator {
 				Integer rhsSize = rhsVec.size();
 				if (!lhsSize.equals(rhsSize))	{
 					// Need to pad the smaller vector with zeroes
-					if (lhsSize.compareTo(rhsSize) == -1) {
+					if (lhsSize.compareTo(rhsSize) < 0) {
 						// lhs is smaller
 						for (int i = lhsSize; i < rhsSize; i++) {
 							lhsVec.add(i,0);
@@ -83,7 +83,7 @@ public class EvaluatorNotEquals implements Evaluator {
 				}
 				// Perform element-wise comparison
 				for (int i = 0; i < size; i++) {
-					Integer comp = (!(lhsVec.get(i).compareTo(rhsVec.get(i)) == 0))? 1 : 0;
+					Integer comp = (lhsVec.get(i).compareTo(rhsVec.get(i)) != 0) ? 1 : 0;
 					result.add(comp);
 				}
 			}
