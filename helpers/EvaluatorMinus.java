@@ -66,8 +66,10 @@ public class EvaluatorMinus implements Evaluator {
 				for (int i = 0; i < smallerSize; i++) {
 					result.set(i, lhsVec.get(i) - rhsVec.get(i));
 				}
-				for (int j = smallerSize; j < largerSize; j++) {
-					result.set(j, -result.get(j));
+				if (lhsSize < rhsSize) {
+					for (int j = smallerSize; j < largerSize; j++) {
+						result.set(j, -result.get(j));
+					}
 				}
 			}
 			
