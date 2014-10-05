@@ -50,7 +50,6 @@ public class EvaluatorIndex implements Evaluator {
 				if (k < (indeces.size()-1)) {
 					throw new RuntimeException("Type check error. Only vectors can be indexed.");
 				}
-				type = new BuiltInTypeSymbol("int");
 				return retVec.get(indexInt);
 			} else {
 				// Calculate the new vector, continue.
@@ -65,7 +64,6 @@ public class EvaluatorIndex implements Evaluator {
 					Integer item = retVec.get(iter);
 					inter.add(item);
 				}
-				type = new BuiltInTypeSymbol("vector");
 				retVec = inter;
 			}
 		}

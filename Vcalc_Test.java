@@ -32,10 +32,7 @@ public class Vcalc_Test {
     		"int b = 2;\n" + 
     		"vector v = 1..10;\n" + 
     		"vector w = 1..3;\n" + 
-    		"\n" + 
-    		"print(v[a]);\n" + 
-    		"print(v[w]);\n" + 
-    		"print(v[w][b][1..2]);\n" + 
+    		"print(w-v);\n" +
     		"");
     
 	/**
