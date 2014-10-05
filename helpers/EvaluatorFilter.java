@@ -43,7 +43,7 @@ public class EvaluatorFilter implements Evaluator {
 		ArrayList<Integer> result = new ArrayList<Integer>();
 		
 		for (int i : rlist) {
-			((BaseScope)scope).setValue(var, i);
+			scope.setValue(var, i);
 			Integer comp = (Integer)expression.evaluate();
 			if(comp != 0) {result.add(i);}
 		}

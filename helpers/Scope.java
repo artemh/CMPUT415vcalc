@@ -5,4 +5,5 @@ public interface Scope {
 	public void define(Symbol sym);
 	public Symbol resolve(String name);
 	public Object getValue(String name);
+	public void setValue(String name, Object value);
 }
