@@ -7,7 +7,7 @@ options {
 }
 
 tokens {
-  DECL; ASSIGN; IFSTAT; LOOPSTAT; PRINTSTAT; BLOCK; OK; INDEX; GEN; FILT;
+  DECL; ASSIGN; IFSTAT; LOOPSTAT; PRINTSTAT; BLOCK; OK; INDEX; GEN; FILT; INDECES;
 }
 
 @members {
@@ -58,9 +58,14 @@ multiplication
   ;
   
 index
-  : range ('[' e=expression  ']')* 
-  		-> {$e.tree != null}? ^(INDEX range $e*)
+  : range indeces? 
+  		-> {$indeces.tree != null}? ^(INDEX range indeces)
         -> range   
+  ;
+  
+indeces
+  : '[' i=expression  ']' ('[' e+=expression  ']')*
+  	-> ^(INDECES $i $e*)
   ;
   
 range 

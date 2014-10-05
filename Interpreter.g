@@ -152,12 +152,20 @@ expression returns [Evaluator e]
   	{ $e = $generator.e; }
   | filter
   	{ $e = $filter.e; }
-  | ^(INDEX expression+)
-    { $e = new EvaluatorIndex($op1.e, $op2.e); }
+  | index
+  	{ $e = $index.e; }
   | VARNUM 
   	{ $e = new EvaluatorVar(currentScope, $VARNUM.text);	}
   | INTEGER
   	{ $e = new EvaluatorInt(Integer.parseInt($INTEGER.text)); }
+  ;
+  
+index returns [Evaluator e]
+@init {
+	ArrayList<Evaluator> indList = new ArrayList<Evaluator>();
+}
+  :	^(INDEX op1=expression ^(INDECES (op2=expression {indList.add($op2.e);})+ ))
+    { $e = new EvaluatorIndex($op1.e, indList); }
   ;
   
 filter returns [Evaluator e]
