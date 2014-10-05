@@ -63,25 +63,5 @@ public class EvaluatorIndex implements Evaluator {
 			}
 		}
 		return retVec;
-		
-		/**
-		if(type.getName().equals("int")) {
-			ArrayList<Integer> vecList = (ArrayList<Integer>) vector.evaluate();
-			return (vecList.get((Integer)index.evaluate()));
-		} else {
-			ArrayList<Integer> vecList = (ArrayList<Integer>) vector.evaluate();
-			ArrayList<Integer> indexList = (ArrayList<Integer>) index.evaluate();
-			ArrayList<Integer> retList = new ArrayList<Integer>();
-			for (int i = 0; i < indexList.size(); i++) {
-				Integer iter = indexList.get(i);
-				if (iter > vecList.size() - 1) { 
-					throw new RuntimeException("Vector out of bounds.");
-				}
-				Integer item = vecList.get(iter);
-				retList.add(item);
-			}
-			return retList;
-		}
-		**/
 	}
 }

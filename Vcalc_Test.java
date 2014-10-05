@@ -30,7 +30,7 @@ public class Vcalc_Test {
 	
 	
     ANTLRStringStream input = new ANTLRStringStream("vector v1 = 1..10;\n" + 
-    		"int v5 = v1[0..2][1];\n" + 
+    		"int v5 = v1[0..6][0..5][1..4][1];\n" + 
     	   	"print(v5);\n");
     	   	
 	/**
@@ -47,7 +47,7 @@ public class Vcalc_Test {
 	vCalcParser parser = new vCalcParser(tokenStream);
 	vCalcParser.program_return entry = parser.program();
 	Object ast = entry.getTree();
-	System.out.println(entry.tree.toStringTree());
+	//System.out.println(entry.tree.toStringTree());
 	/*
 	DOTTreeGenerator gen = new DOTTreeGenerator();
     StringTemplate st = gen.toDOT((Tree) ast);
