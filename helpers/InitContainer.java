@@ -9,8 +9,7 @@ import org.antlr.stringtemplate.StringTemplate;
 
 public class InitContainer {
 
-	public Map<String, StringTemplate> intInits = new HashMap<String, StringTemplate>();
-	public Map<String, StringTemplate> vecInits = new HashMap<String, StringTemplate>();
+	public Map<String, StringTemplate> inits = new HashMap<String, StringTemplate>();
 	
 	public Map<String, Integer> counters = new HashMap<String, Integer>();
 	

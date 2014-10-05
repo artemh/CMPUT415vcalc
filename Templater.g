@@ -16,15 +16,11 @@ options {
 	import java.util.Map;
 }
 
-@members {
-	Map<String, StringTemplate> intInits = new HashMap<String, StringTemplate>();
-	Map<String, StringTemplate> vecInits = new HashMap<String, StringTemplate>();
-	
-	List<String> intNames = new ArrayList<String>();
-	List<String> vecNames = new ArrayList<String>();
-	
+@members {	
   SymbolTable symtab = new SymbolTable();
   Scope currentScope = symtab.globals;
+  
+  InitContainer container = new InitContainer();
   
   int equalsCounter = 0;
   int notEqualsCounter = 0;
@@ -38,7 +34,7 @@ options {
 program
   : (decl+=declaration)*
     (stat+=statement)*
-    -> program(intInits = {intInits}, intNames = {intNames}, vecInits = {vecInits}, vecNames = {vecNames}, decl = {$decl}, stat = {$stat})
+    -> program(container = {container}, decl = {$decl}, stat = {$stat})
   ;
   
 declaration
@@ -48,11 +44,13 @@ declaration
       VarSymbol S = new VarSymbol($VARNUM.text, type);
       currentScope.define(S);
       if (type.getName().equals("int")) {
-        intInits.put($VARNUM.text, $exp.st);
-        intNames.add($VARNUM.text);
+        container.inits.put($VARNUM.text, $exp.st);
+        container.intNames.add($VARNUM.text);
+        container.counters.put($VARNUM.text, new Integer($exp.c));
       } else {
-        vecInits.put($VARNUM.text, $exp.st);
-        vecNames.add($VARNUM.text);
+        container.inits.put($VARNUM.text, $exp.st);
+        container.vecNames.add($VARNUM.text);
+        container.counters.put($VARNUM.text, new Integer($exp.c));
       }
     }
   	-> {$type.tsym.getName().equals("int")}?  declInt(name = {$VARNUM.text})
