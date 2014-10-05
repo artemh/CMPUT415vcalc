@@ -1,0 +1,8 @@
+int a = 3;
+vector i = 1..10;
+vector j = [i in [j in 1..5 | j * j] | i * i * a];
+vector k = filter(i in filter(i in j | i > 10) | i < 100);
+
+print(i);
+print(j);
+print(k);

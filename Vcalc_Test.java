@@ -33,10 +33,15 @@ public class Vcalc_Test {
 			"print(c);\n"  +
 			"print(v<b);");
 			*/
-    ANTLRStringStream input = new ANTLRStringStream("vector j = [i in 1..10 | i];\n" + 
-			"vector k = filter(i in 1..10 | i > 5);\n" +
-    		"print(k);\n" +
-			"print(j);\n");
+    ANTLRStringStream input = new ANTLRStringStream("int a = 1;\n" + 
+    		"int b = 2;\n" + 
+    		"vector v = 1..10;\n" + 
+    		"vector w = 1..3;\n" + 
+    		"\n" + 
+    		"print(v[a]);\n" + 
+    		"print(v[w]);\n" + 
+    		"print(v[w][b]);\n" + 
+    		"");
 	/**
 	try {
 	    input = new ANTLRFileStream(args[0]);
