@@ -30,8 +30,8 @@ public class Vcalc_Test {
 	
 	
     ANTLRStringStream input = new ANTLRStringStream("vector v1 = 1..10;\n" + 
-    		"int v5 = v1[0..6][0..5][1..4][1];\n" + 
-    	   	"print(v5);\n");
+    		"int v5 = 1..10;\n" + 
+    	   	"print(v6);\n");
     	   	
 	/**
 	try {
@@ -59,8 +59,11 @@ public class Vcalc_Test {
 	// Pass over to verify no variable misuse
 	//Defined defined = new Defined(nodes);
 	//defined.downup(ast);
+	Validator validator = new Validator(nodes);
+	validator.program();
 	
-	// nodes.reset();
+	
+	nodes.reset();
     Interpreter interpreter = new Interpreter(nodes);
     interpreter.program();
 	
