@@ -25,11 +25,12 @@ declaration
   	// Call evaluate on expression's evaluator and declare the variable in the current scope
   	{
   		Type type = $type.tsym;
+  		Type exprType = $exp.e.getType();
+		if (!exprType.getName().equals(type)) {
+			throw new RuntimeException("Type Check error.");	
+		}
   		if (type.getName().equals("int")) {
-  			Type exprType = $exp.e.getType();
-  			if (!exprType.getName().equals(type)) {
-  				throw new RuntimeException("Type Check error.");	
-  			}
+  			
   			Integer value = (Integer)$exp.e.evaluate();
   			VarSymbol S = new VarSymbol($VARNUM.text, $type.tsym, value);
   			currentScope.define(S);
