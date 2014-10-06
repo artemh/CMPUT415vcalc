@@ -13,6 +13,8 @@ options {
 @members {
 	SymbolTable symtab = new SymbolTable();
 	Scope currentScope = symtab.globals;
+	Type intType = new BuiltInTypeSymbol("int");
+	Type vecType = new BuiltInTypeSymbol("vector");
 }
 
 program
@@ -26,18 +28,19 @@ declaration
   	{
   		Type type = $type.tsym;
   		Type exprType = $exp.e.getType();
-		if (!exprType.getName().equals(type.getName())) {
+		if (!type.equals(exprType)) {
 			throw new RuntimeException("Type Check error.");	
 		}
-  		if (type.getName().equals("int")) {
-  			
+  		if (type.equals(intType)) {
   			Integer value = (Integer)$exp.e.evaluate();
   			VarSymbol S = new VarSymbol($VARNUM.text, $type.tsym, value);
   			currentScope.define(S);
-  		} else {
+  		} else if (type.equals(vecType)) {
   			ArrayList<Integer> value = (ArrayList<Integer>)$exp.e.evaluate();
   			VarSymbol S = new VarSymbol($VARNUM.text, $type.tsym, value);
   			currentScope.define(S);
+  		} else { 
+  		  throw new RuntimeException("Invalid type " + type.getName());
   		}
   	}
   ;
@@ -53,7 +56,7 @@ statement
     // need to do type checking here
     Evaluator eval = $exp.e;
     Type type = eval.getType();
-    if (type.getName().equals("int")) {
+    if (type.equals(intType)) {
 	    int cond = (Integer)eval.evaluate();
 	    if (cond != 0) {
 	      input.seek(block);
@@ -75,7 +78,7 @@ statement
     // need to do type checking here
     Evaluator eval = expression();
     Type type = eval.getType();
-    if (type.getName().equals("int")) {
+    if (type.equals(intType)) {
       int cond = (Integer)eval.evaluate();
 	    while (cond != 0) {
 	      input.seek(block);
@@ -94,10 +97,10 @@ statement
   	{
   		Evaluator eval = $exp.e;
   		Type type = eval.getType();
-  		if (type.getName().equals("int")) {
+  		if (type.equals(intType)) {
   			Integer value = (Integer)eval.evaluate(); 
   			System.out.println(value);	 
-  		} else if (type.getName().equals("vector")) {
+  		} else if (type.equals(vecType)) {
   		  	ArrayList<Integer> vector = (ArrayList<Integer>)eval.evaluate(); 
   			System.out.print("[ ");
   			for (Integer i : vector) { System.out.print(i + " "); }
@@ -111,21 +114,21 @@ statement
     	Symbol S = currentScope.resolve($VARNUM.text);
     	// Perform type checking
     	Type lhsType = S.getType();
-        Type rhsType = eval.getType();
-    	if (!lhsType.getName().equals(rhsType.getName())) {
+      Type rhsType = eval.getType();
+    	if (!lhsType.equals(rhsType)) {
     		System.err.println("Incompatible types for assignment: " + 
     		lhsType.getName() + "=" + rhsType.getName() + ";\n" + "in line " +
     		$VARNUM.getLine());
     		System.exit(1);
     	}
-    	if (lhsType.getName().equals("int")) {
+    	if (lhsType.equals(intType)) {
 	    	Integer value = (Integer)eval.evaluate();
 	    	currentScope.setValue(S.getName(), value);
-	    } else if (lhsType.getName().equals("vector")) {
+	    } else if (lhsType.equals(vecType)) {
 	      ArrayList<Integer> value = (ArrayList<Integer>)eval.evaluate();
 	      currentScope.setValue(S.getName(), value);
 	    } else {
-	      throw new RuntimeException("Error: unknown type");
+	      throw new RuntimeException("Invalid type " + lhsType.getName());
 	    }
     }
   ;
@@ -180,7 +183,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(FILT VARNUM {currentScope.define(new VarSymbol($VARNUM.text, new BuiltInTypeSymbol("int"), 0));} op1=expression op2=expression)
+  : ^(FILT VARNUM {currentScope.define(new VarSymbol($VARNUM.text, intType, 0));} op1=expression op2=expression)
     { 
     	$e = new EvaluatorFilter(currentScope, $VARNUM.text, $op1.e, $op2.e); 
     }
@@ -193,7 +196,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  :^(GEN VARNUM {currentScope.define(new VarSymbol($VARNUM.text, new BuiltInTypeSymbol("int"), 0));} op1=expression op2=expression)
+  :^(GEN VARNUM {currentScope.define(new VarSymbol($VARNUM.text, intType, 0));} op1=expression op2=expression)
     { 
     	$e = new EvaluatorGenerator(currentScope, $VARNUM.text, $op1.e, $op2.e); 
     }
@@ -201,7 +204,7 @@ currentScope = currentScope.getEnclosingScope();
   
 type returns [Type tsym]
   : INT
-  	{$tsym = (Type)currentScope.resolve($INT.text);}
+  	{$tsym = intType;}
   | VECTOR
-  	{$tsym = (Type)currentScope.resolve($VECTOR.text);}
+  	{$tsym = vecType;}
   ;

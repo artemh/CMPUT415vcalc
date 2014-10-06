@@ -27,11 +27,14 @@ options {
   int rangeCounter = 0;
   int counter = 0;
   
+  Type intType = new BuiltInTypeSymbol("int");
+  Type vecType = new BuiltInTypeSymbol("vector");
+  
   public Type exprType(Type lhs, Type rhs) {
-     if (lhs.getName().equals("vector") || rhs.getName().equals("vector")) {
-       return new BuiltInTypeSymbol("vector");
+     if (lhs.equals(vecType) || rhs.equals(vecType)) {
+       return vecType;
      } else {
-       return new BuiltInTypeSymbol("int");
+       return intType;
      }
   }
   
@@ -60,21 +63,23 @@ declaration
       currentScope.define(S);
       Type exprType = $exp.tsym;
       
-  	  if (!exprType.getName().equals(type.getName())) {
+  	  if (!exprType.equals(type)) {
   	    throw new RuntimeException("Type Check error.");	
   	  }
   	  
-      if (type.getName().equals("int")) {
+      if (type.equals(intType)) {
         container.inits.put($VARNUM.text, $exp.st);
         container.intNames.add($VARNUM.text);
         container.counters.put($VARNUM.text, new Integer($exp.c));
-      } else {
+      } else if (type.equals(vecType)) {
         container.inits.put($VARNUM.text, $exp.st);
         container.vecNames.add($VARNUM.text);
         container.counters.put($VARNUM.text, new Integer($exp.c));
+      } else {
+        throw new RuntimeException("Invalid type " + type.getName());
       }
     }
-  	-> {$type.tsym.getName().equals("int")}?  declInt(name = {$VARNUM.text})
+  	-> {type.equals(intType)}?  declInt(name = {$VARNUM.text})
   	// Add expression template to intInits
   	-> declVec(name = {$VARNUM.text})
   	// Add expression template to vecInits
@@ -84,7 +89,7 @@ declaration
 statement
   : ^(IFSTAT exp=expression 
     {
-      if (!($exp.tsym.getName().equals("int"))) {
+      if (!($exp.tsym.equals(intType))) {
         throw new RuntimeException("Error: statement conditional must be an integer.");
       }
       counter++;
@@ -96,7 +101,7 @@ statement
     -> if(counter = {localCounter}, if_counter = {localIfCounter}, expr_counter = {$exp.c}, expr={$exp.st}, b={$b.st})
   | ^(LOOPSTAT exp=expression
     {
-      if (!($exp.tsym.getName().equals("int"))) {
+      if (!($exp.tsym.equals(intType))) {
         throw new RuntimeException("Error: statement conditional must be an integer.");
       }
       counter++;
@@ -116,12 +121,12 @@ statement
       Symbol s = currentScope.resolve($VARNUM.text);
       Type stype = s.getType();
       Type exptype = $exp.tsym;
-      if (!(stype.getName().equals(exptype.getName()))) {
+      if (!(stype.equals(exptype))) {
         throw new RuntimeException("Error: type mismatch");
       }
       String var = resolveVar($VARNUM.text);
     }
-    -> {$exp.tsym.getName().equals("vector")}? assignVec(name = {var}, expr_counter = {$exp.c}, expr = {$exp.st})
+    -> {$exp.tsym.equals(vecType)}? assignVec(name = {var}, expr_counter = {$exp.c}, expr = {$exp.st})
     -> assignInt(name = {var}, expr_counter = {$exp.c}, expr = {$exp.st})
   ;
   
@@ -137,9 +142,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? eqVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$lhs.tsym.getName().equals("vector")}? eqVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$rhs.tsym.getName().equals("vector")}? eqIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? eqVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType)}? eqVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.equals(vecType)}? eqIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> eqIntInt(c1 = {counter - 1}, c2 = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('!=' lhs=expression rhs=expression)
 {
@@ -147,9 +152,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? neVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$lhs.tsym.getName().equals("vector")}? neVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$rhs.tsym.getName().equals("vector")}? neIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? neVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType)}? neVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.equals(vecType)}? neIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> neIntInt(c1 = {counter - 1}, c2 = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('<' lhs=expression rhs=expression)
 {
@@ -157,9 +162,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? ltVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$lhs.tsym.getName().equals("vector")}? ltVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$rhs.tsym.getName().equals("vector")}? ltIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? ltVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType)}? ltVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.equals(vecType)}? ltIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> ltIntInt(c1 = {counter - 1}, c2 = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('>' lhs=expression rhs=expression)
 {
@@ -167,9 +172,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? gtVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$lhs.tsym.getName().equals("vector")}? gtVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$rhs.tsym.getName().equals("vector")}? gtIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? gtVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType)}? gtVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.equals(vecType)}? gtIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> gtIntInt(c1 = {counter - 1}, c2 = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('+' lhs=expression rhs=expression)
     {
@@ -177,9 +182,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? addVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$lhs.tsym.getName().equals("vector")}? addVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$rhs.tsym.getName().equals("vector")}? addIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? addVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType)}? addVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.equals(vecType)}? addIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> addIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('-' lhs=expression rhs=expression)
     {
@@ -187,9 +192,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? subVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$lhs.tsym.getName().equals("vector")}? subVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$rhs.tsym.getName().equals("vector")}? subIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? subVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType)}? subVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.equals(vecType)}? subIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> subIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('*' lhs=expression rhs=expression)
     {
@@ -197,9 +202,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? mulVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$lhs.tsym.getName().equals("vector")}? mulVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$rhs.tsym.getName().equals("vector")}? mulIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? mulVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType)}? mulVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.equals(vecType)}? mulIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> mulIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('/' lhs=expression rhs=expression)
     {
@@ -207,30 +212,30 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? divVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$lhs.tsym.getName().equals("vector")}? divVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {$rhs.tsym.getName().equals("vector")}? divIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? divVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.equals(vecType)}? divVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.equals(vecType)}? divIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> divIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('..' lhs=expression rhs=expression)
     {
       counter = counter + 2;
       rangeCounter++;
       $c = counter;
-      $tsym = new BuiltInTypeSymbol("vector");
+      $tsym = vecType;
       Type lhstype = $lhs.tsym;
       Type rhstype = $rhs.tsym;
-      if (!(lhstype.getName().equals("int")) || !(rhstype.getName().equals("int"))) {
+      if (!(lhstype.equals(intType)) || !(rhstype.equals(intType))) {
         throw new RuntimeException("Type check error. Range indexes must be integers.");
       }
     }
     -> range(c1 = {counter - 1}, c2 = {counter}, rc = {rangeCounter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | generator
     {
-      $tsym = new BuiltInTypeSymbol("vector");
+      $tsym = vecType;
     } -> write(input = {$generator.st})
   | filter
     {
-      $tsym = new BuiltInTypeSymbol("vector");
+      $tsym = vecType;
     } -> write(input = {$filter.st})
   | index
     {
@@ -241,10 +246,10 @@ expression returns [int c, Type tsym]
       counter++;
       $c = counter;
       Symbol symbol = currentScope.resolve($VARNUM.text);
-      if (symbol.getType().getName().equals("int")) {
-        $tsym = new BuiltInTypeSymbol("int");
-      } else if (symbol.getType().getName().equals("vector")) {
-        $tsym = new BuiltInTypeSymbol("vector");
+      if (symbol.getType().equals(intType)) {
+        $tsym = intType;
+      } else if (symbol.getType().equals(vecType)) {
+        $tsym = vecType;
       } else {
         throw new RuntimeException("Invalid type");
       }
@@ -256,7 +261,7 @@ expression returns [int c, Type tsym]
     {
       counter++;
       $c = counter;
-      $tsym = new BuiltInTypeSymbol("int");
+      $tsym = intType;
     }
     -> integer(counter = {$c}, value = {Integer.parseInt($INTEGER.text)})
   ;
@@ -267,15 +272,15 @@ index returns [Type tsym]
 }
   :	^(INDEX e1=expression ^(INDECES (exp=expression {indexTypes.add($exp.tsym);})+))
   {
-  	$tsym = new BuiltInTypeSymbol("vector");
+  	$tsym = vecType;
   	for (int i = 0; i < indexTypes.size(); i++) {
   		Type t = indexTypes.get(i);
-  		if (t.getName().equals("int")) {
+  		if (t.equals(intType)) {
   			if (i < indexTypes.size()-1) 
   			{
   				throw new RuntimeException("Type check error. Only vectors can be indexed.");
   			}
-  			$tsym = new BuiltInTypeSymbol("int"); 
+  			$tsym = intType; 
   			break;
   		}
   	}
@@ -292,7 +297,7 @@ generator
   
 type returns [Type tsym]
   : INT
-      {$tsym = new BuiltInTypeSymbol("int");}
+      {$tsym = intType;}
   | VECTOR
-      {$tsym = new BuiltInTypeSymbol("vector");}
+      {$tsym = vecType;}
   ;
