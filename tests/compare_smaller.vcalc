@@ -1,0 +1,3 @@
+vector a = 1..3;
+vector b = [i in 1..4 | 0];
+print(a==b);
