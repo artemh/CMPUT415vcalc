@@ -29,6 +29,14 @@ options {
   int ifCounter = 0;
   int loopCounter = 0;
   int counter = 0;
+  
+  public Type exprType(Type lhs, Type rhs) {
+     if (lhs.getName().equals("vector") || rhs.getName().equals("vector")) {
+       return new BuiltInTypeSymbol("vector");
+     } else {
+       return new BuiltInTypeSymbol("int");
+     }
+  }
 }
 
 program
@@ -100,13 +108,7 @@ expression returns [int c, Type tsym]
     {
       counter++;
       $c = counter;
-      Type lhstype = $lhs.tsym;
-      Type rhstype = $rhs.tsym;
-      if (lhstype.getName().equals("vector") || rhstype.getName().equals("vector")) {
-        $tsym = new BuiltInTypeSymbol("vector");
-      } else {
-        $tsym = new BuiltInTypeSymbol("int");
-      }
+      $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {lhstype.getName().equals("vector") && rhstype.getName().equals("vector")}? addVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> {lhstype.getName().equals("vector")}? addVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -116,13 +118,7 @@ expression returns [int c, Type tsym]
     {
       counter++;
       $c = counter;
-      Type lhstype = $lhs.tsym;
-      Type rhstype = $rhs.tsym;
-      if (lhstype.getName().equals("vector") || rhstype.getName().equals("vector")) {
-        $tsym = new BuiltInTypeSymbol("vector");
-      } else {
-        $tsym = new BuiltInTypeSymbol("int");
-      }
+      $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {lhstype.getName().equals("vector") && rhstype.getName().equals("vector")}? subVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> {lhstype.getName().equals("vector")}? subVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -132,13 +128,7 @@ expression returns [int c, Type tsym]
     {
       counter++;
       $c = counter;
-      Type lhstype = $lhs.tsym;
-      Type rhstype = $rhs.tsym;
-      if (lhstype.getName().equals("vector") || rhstype.getName().equals("vector")) {
-        $tsym = new BuiltInTypeSymbol("vector");
-      } else {
-        $tsym = new BuiltInTypeSymbol("int");
-      }
+      $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {lhstype.getName().equals("vector") && rhstype.getName().equals("vector")}? mulVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> {lhstype.getName().equals("vector")}? mulVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -148,13 +138,7 @@ expression returns [int c, Type tsym]
     {
       counter++;
       $c = counter;
-      Type lhstype = $lhs.tsym;
-      Type rhstype = $rhs.tsym;
-      if (lhstype.getName().equals("vector") || rhstype.getName().equals("vector")) {
-        $tsym = new BuiltInTypeSymbol("vector");
-      } else {
-        $tsym = new BuiltInTypeSymbol("int");
-      }
+      $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {lhstype.getName().equals("vector") && rhstype.getName().equals("vector")}? divVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> {lhstype.getName().equals("vector")}? divVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
