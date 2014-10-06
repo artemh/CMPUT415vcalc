@@ -83,8 +83,6 @@ public class EvaluatorEquals implements Evaluator {
 				// Perform element-wise comparison
 				for (int i = 0; i < size; i++) {
 					Integer comp = (lhsVec.get(i).compareTo(rhsVec.get(i)) == 0)? 1 : 0;
-					System.out.println(comp);
-					System.out.println("WWW");
 					result.add(comp);
 				}
 			}

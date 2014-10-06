@@ -26,7 +26,7 @@ declaration
   	{
   		Type type = $type.tsym;
   		Type exprType = $exp.e.getType();
-		if (!exprType.getName().equals(type)) {
+		if (!exprType.getName().equals(type.getName())) {
 			throw new RuntimeException("Type Check error.");	
 		}
   		if (type.getName().equals("int")) {
