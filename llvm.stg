@@ -24,20 +24,6 @@ declare i32 @printf(i8*, ...)
 
 >>
 
-varnum(counter, name) ::= <<
-%<counter> = load i32* <name>
->>
-
-integer(counter, value) ::= <<
-%<counter> = add i32 <value>, 0
->>
-
-print(counter, expr_counter, expr) ::= <<
-<expr>
-%<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
-
->>
-
 declInt(name) ::= <<
 @<name> = global i32 0, align 4
 
@@ -47,4 +33,46 @@ initInt(name, counters, templates) ::= <<
 <templates.(name)>
 store i32 %<counters.(name)>, i32* @<name>, align 4
 
+>>
+
+print(counter, expr_counter, expr) ::= <<
+<expr>
+%<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
+
+>>
+
+addIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<counter> = add i32 %<lhs_counter>, %<rhs_counter>
+
+>>
+
+subIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<counter> = sub i32 %<lhs_counter>, %<rhs_counter>
+
+>>
+
+mulIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<counter> = mul i32 %<lhs_counter>, %<rhs_counter>
+
+>>
+
+divIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<counter> = udiv i32 %<lhs_counter>, %<rhs_counter>
+
+>>
+
+varnum(counter, name) ::= <<
+%<counter> = load i32* <name>
+>>
+
+integer(counter, value) ::= <<
+%<counter> = add i32 <value>, 0
 >>
