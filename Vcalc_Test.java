@@ -64,7 +64,7 @@ public class Vcalc_Test {
 	}
 	else {
 	    // Pass it all to the String templater!
-	    String templateFile = args[1] + ".stg";
+	    String templateFile = "llvm.stg";
 
 	    Reader template = new InputStreamReader(Vcalc_Test.class.getResourceAsStream(templateFile));
 	    StringTemplateGroup stg = new StringTemplateGroup(template);

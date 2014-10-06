@@ -94,9 +94,6 @@ statement
   	{
   		Evaluator eval = $exp.e;
   		Type type = eval.getType();
-  		if (type == null) {
-  			System.out.println("LLL");
-  		}
   		if (type.getName().equals("int")) {
   			Integer value = (Integer)eval.evaluate(); 
   			System.out.println(value);	 
@@ -115,7 +112,6 @@ statement
     	// Perform type checking
     	Type lhsType = S.getType();
         Type rhsType = eval.getType();
-    	System.out.println(lhsType.getName() + "to " + rhsType.getName());
     	if (!lhsType.getName().equals(rhsType.getName())) {
     		System.err.println("Incompatible types for assignment: " + 
     		lhsType.getName() + "=" + rhsType.getName() + ";\n" + "in line " +

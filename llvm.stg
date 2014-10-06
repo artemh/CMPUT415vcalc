@@ -13,24 +13,6 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str.rerror = private unnamed_addr constant [54 x i8] c"Range lower bound must be less than the upper bound.\0A\00", align 1
 <decl:{d|<d>}>
 
-; FUN TIMES BELOW
-
-define {i32, i32, <32 x i32>*} @range.vec(i32, i32) nounwind uwtable {
-	
-}
-
-define {i32, i32, <32 x i32>*} @add.int.vec(i32, {i32, i32, <32 x i32>*}) nounwind uwtable {
-	
-}
-
-define {i32, i32, <32 x i32>*} @add.vec.int({i32, i32, <32 x i32>*}, i32) nounwind uwtable {
-	
-}
-
-define {i32, i32, <32 x i32>*} @add.vec.vec({i32, i32, <32 x i32>*}, {i32, i32, <32 x i32>*}) nounwind uwtable {
-	
-}
-
 define i32 @main() nounwind uwtable {
   <container.intNames:{x|<initInt(name=(x), counters = container.counters, templates=container.inits)>}>
   <container.vecNames:{x|<initVec(name=(x), counters = container.counters, templates=container.inits)>}>
@@ -163,10 +145,10 @@ divIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 range(c1, c2, rc, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-%<c1> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
+%<c1> = icmp ule i32 %<lhs_counter>, %<rhs_counter>
 br i1 %<c1>, label %range.valid<rc>, label %range.invalid<rc>
 range.valid<rc>:
-	%<c2> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.rbrack, i32 0, i32 0))
+	%<c2> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.rbrack, i32 0, i32 0))
 	br label %range.done<rc>
 range.invalid<rc>:
 	%rerror<rc> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([54 x i8]* @.str.rerror, i32 0, i32 0))

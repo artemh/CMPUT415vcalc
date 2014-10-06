@@ -59,31 +59,18 @@ public class EvaluatorEquals implements Evaluator {
 				// vec == vec
 				ArrayList<Integer> lhsVec = (ArrayList<Integer>)lhs.evaluate();
 				ArrayList<Integer> rhsVec = (ArrayList<Integer>)rhs.evaluate();	
-				Integer size = 0;
 				Integer lhsSize = lhsVec.size();
 				Integer rhsSize = rhsVec.size();
-				if (!lhsSize.equals(rhsSize))	{
-					// Need to pad the smaller vector with zeroes
-					if (lhsSize.compareTo(rhsSize) < 0) {
-						// lhs is smaller
-						for (int i = lhsSize; i < rhsSize; i++) {
-							lhsVec.add(i,0);
-						}
-						size = rhsSize;
-					} else {
-						// rhs is smaller
-						for (int i = rhsSize; i < lhsSize; i++) {
-							rhsVec.add(i,0);
-						}
-						size = lhsSize;
-					}
-				} else {
-					size = lhsSize;
-				}
+
+				Integer smallerSize = lhsSize.compareTo(rhsSize) > 0 ? rhsSize : lhsSize;
+				Integer largerSize = lhsSize.compareTo(rhsSize) > 0 ? lhsSize : rhsSize;
 				// Perform element-wise comparison
-				for (int i = 0; i < size; i++) {
+				for (int i = 0; i < smallerSize; i++) {
 					Integer comp = (lhsVec.get(i).compareTo(rhsVec.get(i)) == 0)? 1 : 0;
 					result.add(comp);
+				}
+				for (int i = smallerSize; i < largerSize; i++) {
+					result.add(0);
 				}
 			}
 			
