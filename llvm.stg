@@ -9,15 +9,18 @@ target triple = "x86_64-unknown-linux-gnu"
 ; This prints integer %d followed by \n followed by string termination symbol
 @.str.int = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @.str.lbrack = private unnamed_addr constant [3 x i8] c"[ \00", align 1
-@.str.rbrack = private unnamed_addr constant [3 x i8] c" ]\00", align 1
+@.str.rbrack = private unnamed_addr constant [4 x i8] c" ]\0A\00", align 1
+@.str.rerror = private unnamed_addr constant [54 x i8] c"Range lower bound must be less than the upper bound.\0A\00", align 1
 <decl:{d|<d>}>
 
 define i32 @main() nounwind uwtable {
   <container.intNames:{x|<initInt(name=(x), counters = container.counters, templates=container.inits)>}>
   <container.vecNames:{x|<initVec(name=(x), counters = container.counters, templates=container.inits)>}>
   <stat:{s|<s>}>
-
-  ret i32 0
+	
+  br label %quit.label
+  quit.label:
+  	ret i32 0
 }
 
 declare i32 @printf(i8*, ...)
@@ -26,6 +29,10 @@ declare i32 @printf(i8*, ...)
 
 declInt(name) ::= <<
 @<name> = global i32 0, align 4
+
+>>
+
+declVec() ::= <<
 
 >>
 
@@ -135,10 +142,29 @@ divIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 
 >>
 
+range(c1, c2, rc, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<c1> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
+br i1 %<c1>, label %range.valid<rc>, label %range.invalid<rc>
+range.valid<rc>:
+	%<c2> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.rbrack, i32 0, i32 0))
+	br label %range.done<rc>
+range.invalid<rc>:
+	%rerror<rc> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([54 x i8]* @.str.rerror, i32 0, i32 0))
+	br label %quit.label
+range.done<rc>:
+
+>>
+
 varnum(counter, name) ::= <<
 %<counter> = load i32* <name>
 >>
 
 integer(counter, value) ::= <<
 %<counter> = add i32 <value>, 0
+>>
+
+write(input) ::= <<
+<input>
 >>

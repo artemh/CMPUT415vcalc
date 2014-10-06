@@ -24,6 +24,7 @@ options {
   
   int ifCounter = 0;
   int loopCounter = 0;
+  int rangeCounter = 0;
   int counter = 0;
   
   public Type exprType(Type lhs, Type rhs) {
@@ -60,7 +61,7 @@ declaration
       Type exprType = $exp.tsym;
       
   	  if (!exprType.getName().equals(type.getName())) {
-  		throw new RuntimeException("Type Check error.");	
+  	    throw new RuntimeException("Type Check error.");	
   	  }
   	  
       if (type.getName().equals("int")) {
@@ -212,28 +213,29 @@ expression returns [int c, Type tsym]
     -> divIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('..' lhs=expression rhs=expression)
     {
-      counter++;
+      counter = counter + 2;
+      rangeCounter++;
       $c = counter;
-      $tsym = exprType($lhs.tsym, $rhs.tsym);
+      $tsym = new BuiltInTypeSymbol("vector");
+      Type lhstype = $lhs.tsym;
+      Type rhstype = $rhs.tsym;
+      if (!(lhstype.getName().equals("int")) || !(rhstype.getName().equals("int"))) {
+        throw new RuntimeException("Type check error. Range indexes must be integers.");
+      }
     }
+    -> range(c1 = {counter - 1}, c2 = {counter}, rc = {rangeCounter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | generator
     {
-      counter++;
-      $c = counter;
       $tsym = new BuiltInTypeSymbol("vector");
-    }
+    } -> write(input = {$generator.st})
   | filter
     {
-      counter++;
-      $c = counter;
       $tsym = new BuiltInTypeSymbol("vector");
-    }
+    } -> write(input = {$filter.st})
   | index
     {
-      counter++;
-      $c = counter;
       $tsym = $index.tsym;
-    }
+    } -> write(input = {$index.st})
   | VARNUM 
     {
       counter++;
@@ -263,10 +265,9 @@ index returns [Type tsym]
 @init {
 	ArrayList<Type> indexTypes = new ArrayList<Type>();
 }
-  :	^(INDEX expression ^(INDECES (exp=expression {indexTypes.add($exp.tsym);})+))
+  :	^(INDEX e1=expression ^(INDECES (exp=expression {indexTypes.add($exp.tsym);})+))
   {
   	$tsym = new BuiltInTypeSymbol("vector");
-  	
   	for (int i = 0; i < indexTypes.size(); i++) {
   		Type t = indexTypes.get(i);
   		if (t.getName().equals("int")) {

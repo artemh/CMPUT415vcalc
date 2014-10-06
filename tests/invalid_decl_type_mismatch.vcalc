@@ -1,0 +1,3 @@
+vector a = 1..3;
+vector b = a[1];
+print(b);
