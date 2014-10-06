@@ -266,8 +266,14 @@ index returns [Type tsym]
   :	^(INDEX expression ^(INDECES (exp=expression {indexTypes.add($exp.tsym);})+))
   {
   	$tsym = new BuiltInTypeSymbol("vector");
-  	for (Type t : indexTypes) {
+  	
+  	for (int i = 0; i < indexTypes.size(); i++) {
+  		Type t = indexTypes.get(i);
   		if (t.getName().equals("int")) {
+  			if (i < indexTypes.size()-1) 
+  			{
+  				throw new RuntimeException("Type check error. Only vectors can be indexed.");
+  			}
   			$tsym = new BuiltInTypeSymbol("int"); 
   			break;
   		}
