@@ -226,6 +226,7 @@ expression returns [int c, Type tsym]
     {
       counter++;
       $c = counter;
+      $tsym = $index.tsym;
     }
   | VARNUM 
     {
@@ -252,15 +253,27 @@ expression returns [int c, Type tsym]
     -> integer(counter = {$c}, value = {Integer.parseInt($INTEGER.text)})
   ;
   
-index 
-  :	^(INDEX expression ^(INDECES (expression)+))
+index returns [Type tsym]
+@init {
+	ArrayList<Type> indexTypes = new ArrayList<Type>();
+}
+  :	^(INDEX expression ^(INDECES (exp=expression {indexTypes.add($exp.tsym);})+))
+  {
+  	$tsym = new BuiltInTypeSymbol("vector");
+  	for (Type t : indexTypes) {
+  		if (t.getName().equals("int")) {
+  			$tsym = new BuiltInTypeSymbol("int"); 
+  			break;
+  		}
+  	}
+  }
   ;
   
-filter
+filter 
   : ^(FILT VARNUM op1=expression op2=expression)
   ;
   
-generator
+generator 
   :^(GEN VARNUM op1=expression op2=expression)
   ;
   
