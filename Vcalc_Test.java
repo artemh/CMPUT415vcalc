@@ -78,9 +78,6 @@ public class Vcalc_Test {
 	BufferedTreeNodeStream nodes = new BufferedTreeNodeStream(ast);
 	nodes.setTokenStream(tokenStream);
 	
-	// Pass over to verify no variable misuse
-	//Defined defined = new Defined(nodes);
-	//defined.downup(ast);
 	Validator validator = new Validator(nodes);
 	validator.program();
 	
