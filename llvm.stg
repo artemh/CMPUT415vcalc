@@ -35,6 +35,30 @@ store i32 %<counters.(name)>, i32* @<name>, align 4
 
 >>
 
+if(counter, if_counter, expr_counter, expr, b) ::= <<
+<expr>
+%<counter> = icmp ne i32 %<expr_counter>, 0
+br i1 %<counter>, label %if.true<if_counter>, label %if.done<if_counter>
+if.true<if_counter>:
+  <b>
+  br label %if.done<if_counter>
+if.done<if_counter>:
+
+>>
+
+loop(counter, loop_counter, expr_counter, expr, b) ::= <<
+br label %loop.begin<loop_counter>
+loop.begin<loop_counter>:
+<expr>
+%<counter> = icmp eq i32 %<expr_counter>, 0
+br i1 %<counter>, label %loop.done<loop_counter>, label %loop.true<loop_counter>
+loop.true<loop_counter>:
+  <b>
+  br label %loop.begin<loop_counter>
+loop.done<loop_counter>:
+
+>>
+
 assignInt(name, expr_counter, expr) ::= <<
 <expr>
 store i32 %<expr_counter>, i32* <name>, align 4
@@ -44,6 +68,42 @@ store i32 %<expr_counter>, i32* <name>, align 4
 print(counter, expr_counter, expr) ::= <<
 <expr>
 %<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
+
+>>
+
+block(s) ::= <<
+<s:{x|<x>}>
+>>
+
+eqIntInt(c1, c2, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<c1> = icmp eq i32 %<lhs_counter>, %<rhs_counter>
+%<c2> = zext i1 %<c1> to i32
+
+>>
+
+neIntInt(c1, c2, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<c1> = icmp ne i32 %<lhs_counter>, %<rhs_counter>
+%<c2> = zext i1 %<c1> to i32
+
+>>
+
+ltIntInt(c1, c2, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<c1> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
+%<c2> = zext i1 %<c1> to i32
+
+>>
+
+gtIntInt(c1, c2, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%<c1> = icmp ugt i32 %<lhs_counter>, %<rhs_counter>
+%<c2> = zext i1 %<c1> to i32
 
 >>
 
