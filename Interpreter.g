@@ -26,6 +26,10 @@ declaration
   	{
   		Type type = $type.tsym;
   		if (type.getName().equals("int")) {
+  			Type exprType = $exp.e.getType();
+  			if (!exprType.getName().equals(type)) {
+  				throw new RuntimeException("Type Check error.");	
+  			}
   			Integer value = (Integer)$exp.e.evaluate();
   			VarSymbol S = new VarSymbol($VARNUM.text, $type.tsym, value);
   			currentScope.define(S);
@@ -109,7 +113,8 @@ statement
     	Symbol S = currentScope.resolve($VARNUM.text);
     	// Perform type checking
     	Type lhsType = S.getType();
-    	Type rhsType = eval.getType();
+        Type rhsType = eval.getType();
+    	System.out.println(lhsType.getName() + "to " + rhsType.getName());
     	if (!lhsType.getName().equals(rhsType.getName())) {
     		System.err.println("Incompatible types for assignment: " + 
     		lhsType.getName() + "=" + rhsType.getName() + ";\n" + "in line " +
