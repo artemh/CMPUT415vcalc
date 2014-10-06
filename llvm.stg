@@ -13,15 +13,17 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str.rerror = private unnamed_addr constant [54 x i8] c"Range lower bound must be less than the upper bound.\0A\00", align 1
 <decl:{d|<d>}>
 
-define {i32, i32, \<32 x i32\>*} @range(i32 %lbound, i32 %ubound) nounwind uwtable {
+%struct.vecType = type {i32, i32, \<32 x i32\>*}
+
+define %struct.vecType* @range(i32 %lbound, i32 %ubound) nounwind uwtable {
     ; calculate the number of elements 
     %size = sub i32 %ubound, %lbound
     ; calculate the number of 32-element segments required 
     %blocks = udiv i32 %ubound, 32
+    %temp = alloca %struct.vecType, align 8
     
     %ptr = alloca \<32 x i32\>
-    
-    ret {i32, i32, \<32 x i32\>*} {i32 0, i32 0, \<32 x i32\>* %ptr}
+    ret %struct.vecType* %temp
 }
 
 
