@@ -57,6 +57,12 @@ declaration
       Type type = $type.tsym;
       VarSymbol S = new VarSymbol($VARNUM.text, type);
       currentScope.define(S);
+      Type exprType = $exp.tsym;
+      
+  	  if (!exprType.getName().equals(type.getName())) {
+  		throw new RuntimeException("Type Check error.");	
+  	  }
+  	  
       if (type.getName().equals("int")) {
         container.inits.put($VARNUM.text, $exp.st);
         container.intNames.add($VARNUM.text);
