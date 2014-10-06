@@ -37,6 +37,16 @@ options {
        return new BuiltInTypeSymbol("int");
      }
   }
+  
+  public String resolveVar(String v) {
+    Symbol symbol = currentScope.resolve(v);
+    String scope = symbol.scope.getScopeName();
+    if (scope.equals("global")) {
+      return "@" + v;
+    } else {
+      return "\%" + v;
+    }
+  }
 }
 
 program
@@ -77,6 +87,17 @@ statement
     }
     -> print(counter = {counter}, expr_counter = {$exp.c}, expr = {$exp.st})
   | ^(ASSIGN VARNUM exp=expression)
+    {
+      Symbol s = currentScope.resolve($VARNUM.text);
+      Type stype = s.getType();
+      Type exptype = $exp.tsym;
+      if (!(stype.getName().equals(exptype.getName()))) {
+        throw new RuntimeException("Error: type mismatch");
+      }
+      String var = resolveVar($VARNUM.text);
+    }
+    -> {$exp.tsym.getName().equals("vector")}? assignVec(name = {var}, expr_counter = {$exp.c}, expr = {$exp.st})
+    -> assignInt(name = {var}, expr_counter = {$exp.c}, expr = {$exp.st})
   ;
   
 block
@@ -110,9 +131,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {lhstype.getName().equals("vector") && rhstype.getName().equals("vector")}? addVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {lhstype.getName().equals("vector")}? addVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {rhstype.getName().equals("vector")}? addIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? addVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.getName().equals("vector")}? addVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.getName().equals("vector")}? addIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> addIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('-' lhs=expression rhs=expression)
     {
@@ -120,9 +141,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {lhstype.getName().equals("vector") && rhstype.getName().equals("vector")}? subVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {lhstype.getName().equals("vector")}? subVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {rhstype.getName().equals("vector")}? subIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? subVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.getName().equals("vector")}? subVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.getName().equals("vector")}? subIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> subIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('*' lhs=expression rhs=expression)
     {
@@ -130,9 +151,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {lhstype.getName().equals("vector") && rhstype.getName().equals("vector")}? mulVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {lhstype.getName().equals("vector")}? mulVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {rhstype.getName().equals("vector")}? mulIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? mulVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.getName().equals("vector")}? mulVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.getName().equals("vector")}? mulIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> mulIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('/' lhs=expression rhs=expression)
     {
@@ -140,9 +161,9 @@ expression returns [int c, Type tsym]
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
-    -> {lhstype.getName().equals("vector") && rhstype.getName().equals("vector")}? divVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {lhstype.getName().equals("vector")}? divVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
-    -> {rhstype.getName().equals("vector")}? divIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.getName().equals("vector") && $rhs.tsym.getName().equals("vector")}? divVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$lhs.tsym.getName().equals("vector")}? divVecInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
+    -> {$rhs.tsym.getName().equals("vector")}? divIntVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
     -> divIntInt(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('..' expression expression)
     {
@@ -168,18 +189,9 @@ expression returns [int c, Type tsym]
     {
       counter++;
       $c = counter;
-      Symbol symbol = currentScope.resolve($VARNUM.text);
-      if (symbol.getType().getName().equals("int")) {
-        $tsym = new BuiltInTypeSymbol("int");
-      } else if (symbol.getType().getName().equals("vector")) {
-        $tsym = new BuiltInTypeSymbol("vector");
-      } else {
-        throw new RuntimeException("Invalid type");
-      }
-      String scope = symbol.scope.getScopeName();
+      String var = resolveVar($VARNUM.text);
     }
-    -> {scope.equals("global")}? varnum(counter = {$c}, name = {"@" + $VARNUM.text})
-    -> varnum(counter = {$c}, name = {"\%" + $VARNUM.text})
+    -> varnum(counter = {$c}, name = {var})
   | INTEGER
     {
       counter++;

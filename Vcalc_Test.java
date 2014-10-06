@@ -32,7 +32,7 @@ public class Vcalc_Test {
 			"print(v5);");
 			**/
 	
-    ANTLRStringStream input = new ANTLRStringStream("int a = 3; int b = 4; print((((b-a)+5)*3)/2);" +
+    ANTLRStringStream input = new ANTLRStringStream("int a = 3; a = 5; print(a);" +
     		"");
     
 	/**

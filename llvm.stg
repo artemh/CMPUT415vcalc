@@ -35,6 +35,12 @@ store i32 %<counters.(name)>, i32* @<name>, align 4
 
 >>
 
+assignInt(name, expr_counter, expr) ::= <<
+<expr>
+store i32 %<expr_counter>, i32* <name>, align 4
+
+>>
+
 print(counter, expr_counter, expr) ::= <<
 <expr>
 %<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
