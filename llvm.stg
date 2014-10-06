@@ -13,8 +13,8 @@ target triple = "x86_64-unknown-linux-gnu"
 <decl:{d|<d>}>
 
 define i32 @main() nounwind uwtable {
-  <container.intNames:{i|<initInt(name=i, counters = container.counters, templates=container.inits)>}>
-  <container.vecNames:{v|<initVec(name=v, counters = container.counters, templates=container.inits)>}>
+  <container.intNames:{x|<initInt(name=(x), counters = container.counters, templates=container.inits)>}>
+  <container.vecNames:{x|<initVec(name=(x), counters = container.counters, templates=container.inits)>}>
   <stat:{s|<s>}>
 
   ret i32 0
@@ -32,9 +32,10 @@ integer(counter, value) ::= <<
 %<counter> = add i32 <value>, 0
 >>
 
-print(expr_counter, expr) ::= <<
+print(counter, expr_counter, expr) ::= <<
 <expr>
-call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
+%<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
+
 >>
 
 declInt(name) ::= <<

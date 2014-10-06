@@ -64,7 +64,10 @@ statement
   : ^(IFSTAT expression .) 
   | ^(LOOPSTAT . .) 
   | ^(PRINTSTAT exp=expression)
-    -> print(expr_counter={$exp.c}, expr={$exp.st})
+    {
+      counter++;
+    }
+    -> print(counter = {counter}, expr_counter = {$exp.c}, expr = {$exp.st})
   | ^(ASSIGN VARNUM exp=expression)
   ;
   
@@ -138,8 +141,9 @@ expression returns [int c]
       counter++;
       $c = counter;
       Symbol symbol = currentScope.resolve($VARNUM.text);
+      String scope = symbol.scope.getScopeName();
     }
-    -> {symbol.scope.equals("global")}? varnum(name = {"@" + $VARNUM.text})
+    -> {scope.equals("global")}? varnum(counter = {$c}, name = {"@" + $VARNUM.text})
     -> varnum(counter = {$c}, name = {"\%" + $VARNUM.text})
   | INTEGER
     {
