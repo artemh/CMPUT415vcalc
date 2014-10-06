@@ -44,8 +44,8 @@ public class EvaluatorIndex implements Evaluator {
 			if(index.getType().getName().equals("int")) {
 				// Get the right item, return it 
 				Integer indexInt = (Integer)index.evaluate();
-				if (indexInt > retVec.size() - 1) { 
-					throw new RuntimeException("Vector out of bounds.");
+				if (indexInt > retVec.size() - 1 || indexInt < 0) { 
+					return 0;
 				}
 				if (k < (indeces.size()-1)) {
 					throw new RuntimeException("Type check error. Only vectors can be indexed.");
@@ -58,11 +58,13 @@ public class EvaluatorIndex implements Evaluator {
 				
 				for (int i = 0; i < indexList.size(); i++) {
 					Integer iter = indexList.get(i);
-					if (iter > retVec.size() - 1) { 
-						throw new RuntimeException("Vector out of bounds.");
+					if (iter > retVec.size() - 1 || iter < 0) { 
+						inter.add(0);
+						//throw new RuntimeException("Vector out of bounds.");
+					} else {
+						Integer item = retVec.get(iter);
+						inter.add(item);
 					}
-					Integer item = retVec.get(iter);
-					inter.add(item);
 				}
 				retVec = inter;
 			}
