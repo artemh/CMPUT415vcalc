@@ -15,15 +15,18 @@ target triple = "x86_64-unknown-linux-gnu"
 
 %struct.vecType = type {i32, i32, \<32 x i32\>*}
 
-define %struct.vecType* @range(i32 %lbound, i32 %ubound) nounwind uwtable {
+define void @range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uwtable {
     ; calculate the number of elements 
-    %size = sub i32 %ubound, %lbound
+    %num_elem = sub i32 %ubound, %lbound
     ; calculate the number of 32-element segments required 
     %blocks = udiv i32 %ubound, 32
-    %temp = alloca %struct.vecType, align 8
+    ; calculate the number of elements in the last segment 
+    %multiple_32 = mul i32 %blocks, 32
+    %last_block_elements = sub i32 %num_elem, %multiple_32
     
-    %ptr = alloca \<32 x i32\>
-    ret %struct.vecType* %temp
+    %printer = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %blocks)
+       
+    ret void
 }
 
 
@@ -88,7 +91,7 @@ store i32 %<expr_counter>, i32* <name>, align 4
 
 print(counter, expr_counter, expr) ::= <<
 <expr>
-%<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
+%<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 42)
 
 >>
 
@@ -162,7 +165,10 @@ range(c1, c2, rc, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %<c1> = icmp ule i32 %<lhs_counter>, %<rhs_counter>
 br i1 %<c1>, label %range.valid<rc>, label %range.invalid<rc>
 range.valid<rc>:
-	%<c2> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.rbrack, i32 0, i32 0))
+  %<c2> = alloca %struct.vecType, align 8
+  
+	call void @range(i32 33, i32 37, %struct.vecType* %<c2>)
+	
 	; call the range function here 
 	
 	br label %range.done<rc>
