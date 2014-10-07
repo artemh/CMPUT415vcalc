@@ -16,12 +16,12 @@ target triple = "x86_64-unknown-linux-gnu"
 
 %struct.vecType = type { i32, i32, \<32 x i32\>* }
 
-define void @printVec(%struct.vecType* %ptr) nounwind uwtable {
+define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 	%printerVec = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.int.raw, i32 0, i32 0), i32 42)
 	ret void
 }
 
-define void @range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uwtable {
+define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uwtable {
     ; calculate the number of elements 
     %num_elem = sub i32 %ubound, %lbound
     ; calculate the number of 32-element segments required 
@@ -62,23 +62,29 @@ define void @range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uwt
 	%compar = icmp ugt i32 %lc, %ubound
 	br i1 %compar, label %for.range.done, label %for.range.next
 	for.range.next:
-	; set the actual values here
 	
-	; %ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
-	%array2 = load \<32 x i32\>** %data, align 8
+	; get a pointer to the list of arrays
+	%ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
+	; load the list of arrays
+	%array_2 = load \<32 x i32\>** %ar_ptr, align 8 
+	
 	; need to figure out which block the item is in
 	%block_num = udiv i32 %offset, 32
 	; need to figure out which index in that block the item is in
 	%index_block = urem i32 %offset, 32
 	
-	%arrayidx = getelementptr inbounds \<32 x i32\>* %array2, i32 %block_num
+	; get the required array address
+	%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
+	
+	; get the actual array
 	%3 = load \<32 x i32\>* %arrayidx, align 128
+	
 	%insert = insertelement \<32 x i32\> %3, i32 %lc, i32 %index_block
 	
-	;need to put it back
-	;store \<32 x i32\> %3, \<32 x i32\>* %arrayidx, align 128
+	;need to put it back, not sure how yet
+	store \<32 x i32\> %3, \<32 x i32\>* %arrayidx, align 128
 	
-	%printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %offset)
+	%printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %lc)
 	
 	%new_lc = add i32 %lc, 1 
 	store i32 %new_lc, i32* %lc_ptr, align 4
@@ -155,7 +161,7 @@ store i32 %<expr_counter>, i32* <name>, align 4
 printVec(counter, expr_counter, expr) ::= <<
 <expr>
 %lbrack<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.lbrack, i32 0, i32 0))
-call void @printVec(%struct.vecType* %<expr_counter>)
+call void @.printVec(%struct.vecType* %<expr_counter>)
 %rbrack<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.rbrack, i32 0, i32 0))
 
 >>
@@ -237,7 +243,7 @@ range(c1, c2, rc, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 br i1 %<c1>, label %range.valid<rc>, label %range.invalid<rc>
 range.valid<rc>:
     %<c2> = alloca %struct.vecType, align 8
-	call void @range(i32 %<lhs_counter>, i32 %<rhs_counter>, %struct.vecType* %<c2>)
+	call void @.range(i32 %<lhs_counter>, i32 %<rhs_counter>, %struct.vecType* %<c2>)
 	br label %range.done<rc>
 range.invalid<rc>:
 	%rerror<rc> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([54 x i8]* @.str.rerror, i32 0, i32 0))
