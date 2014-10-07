@@ -115,7 +115,8 @@ statement
     {
       counter++;
     }
-    -> print(counter = {counter}, expr_counter = {$exp.c}, expr = {$exp.st})
+    -> {$exp.tsym.equals(vecType)}? printVec(counter = {counter}, expr_counter = {$exp.c}, expr = {$exp.st})
+    -> printInt(counter = {counter}, expr_counter = {$exp.c}, expr = {$exp.st})
   | ^(ASSIGN VARNUM exp=expression)
     {
       Symbol s = currentScope.resolve($VARNUM.text);
