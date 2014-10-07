@@ -8,7 +8,7 @@ target triple = "x86_64-unknown-linux-gnu"
 
 ; This prints integer %d followed by \n followed by string termination symbol
 @.str.int = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
-@.str.int.raw = private unnamed_addr constant [3 x i8] c"%d\00", align 1
+@.str.int.raw = private unnamed_addr constant [4 x i8] c"%d\20\00", align 1
 @.str.lbrack = private unnamed_addr constant [3 x i8] c"[ \00", align 1
 @.str.rbrack = private unnamed_addr constant [4 x i8] c" ]\0A\00", align 1
 @.str.rerror = private unnamed_addr constant [54 x i8] c"Range lower bound must be less than the upper bound.\0A\00", align 1
@@ -17,13 +17,60 @@ target triple = "x86_64-unknown-linux-gnu"
 %struct.vecType = type { i32, i32, \<32 x i32\>* }
 
 define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
-	%printerVec = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.int.raw, i32 0, i32 0), i32 42)
+	%print_num_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 0
+	%print_num = load i32* %print_num_ptr, align 4
+
+	; need to loop over the array and print the values
+    
+    %lc_ptr = alloca i32
+    %offset_ptr = alloca i32
+    store i32 0, i32* %lc_ptr, align 4
+    store i32 0, i32* %offset_ptr, align 4
+    
+    br label %print.for.range.begin
+	print.for.range.begin:
+	%lc = load i32* %lc_ptr
+	%offset = load i32* %offset_ptr
+	
+	%compar = icmp ugt i32 %lc, %print_num
+	br i1 %compar, label %print.for.range.done, label %print.for.range.next
+	print.for.range.next:
+	
+	; get a pointer to the list of arrays
+	%ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
+	; load the list of arrays
+	%array_2 = load \<32 x i32\>** %ar_ptr, align 8 
+	
+	; need to figure out which block the item is in
+	%block_num = udiv i32 %offset, 32
+	; need to figure out which index in that block the item is in
+	%index_block = urem i32 %offset, 32
+	
+	%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
+	%1 = load \<32 x i32\>* %arrayidx, align 128
+	%value = extractelement \<32 x i32\> %1, i32 %index_block
+	
+	;%printerVec1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %block_num)
+	;%printerVec2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %index_block)
+	%printerVec3 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %value)
+	
+	; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
+	
+	%new_lc = add i32 %lc, 1 
+	store i32 %new_lc, i32* %lc_ptr, align 4
+	%new_offset = add i32 %offset, 1
+	store i32 %new_offset, i32* %offset_ptr, align 4
+	
+	br label %print.for.range.begin
+	print.for.range.done:
+	
 	ret void
 }
 
 define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uwtable {
     ; calculate the number of elements 
-    %num_elem = sub i32 %ubound, %lbound
+    %num_elem_temp = sub i32 %ubound, %lbound
+    %num_elem = add i32 %num_elem_temp, 1
     ; calculate the number of 32-element segments required 
     %temp = udiv i32 %num_elem, 32
     ; add 1 since division rounds down
@@ -84,7 +131,7 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 	;need to put it back, not sure how yet
 	store \<32 x i32\> %3, \<32 x i32\>* %arrayidx, align 128
 	
-	%printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %lc)
+	; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
 	
 	%new_lc = add i32 %lc, 1 
 	store i32 %new_lc, i32* %lc_ptr, align 4
