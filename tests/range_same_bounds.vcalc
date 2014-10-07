@@ -1,1 +1,3 @@
+int i = 24;
+vector b = 1..24;
 print(3..11);

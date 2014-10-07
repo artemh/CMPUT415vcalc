@@ -6,6 +6,8 @@ program(container, decl, stat) ::= <<
 target datalayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
+%struct.vecType = type { i32, i32, \<32 x i32\>* }
+
 ; This prints integer %d followed by \n followed by string termination symbol
 @.str.int = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @.str.int.raw = private unnamed_addr constant [4 x i8] c"%d\20\00", align 1
@@ -14,7 +16,6 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str.rerror = private unnamed_addr constant [54 x i8] c"Range lower bound must be less than the upper bound.\0A\00", align 1
 <decl:{d|<d>}>
 
-%struct.vecType = type { i32, i32, \<32 x i32\>* }
 
 define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 	%print_num_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 0
@@ -53,9 +54,7 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 	;%printerVec1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %block_num)
 	;%printerVec2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %index_block)
 	%printerVec3 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %value)
-	
-	; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
-	
+		
 	%new_lc = add i32 %lc, 1 
 	store i32 %new_lc, i32* %lc_ptr
 	%new_offset = add i32 %offset, 1
@@ -84,6 +83,7 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 		%array = bitcast i8* %call to \<32 x i32\>*
     ; get array ptr
     %data = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
+    
     ; plug the array in
     store \<32 x i32\>* %array, \<32 x i32\>** %data
     
@@ -128,9 +128,7 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 		
 		;need to put it back, not sure how yet
 		store \<32 x i32\> %insert, \<32 x i32\>* %arrayidx
-		
-		; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
-		
+				
 		%new_lc = add i32 %lc, 1 
 		store i32 %new_lc, i32* %lc_ptr
 		%new_offset = add i32 %offset, 1
@@ -162,12 +160,18 @@ declInt(name) ::= <<
 >>
 
 declVec() ::= <<
+@<name> = global %struct.vecType*
 
 >>
 
 initInt(name, counters, templates) ::= <<
 <templates.(name)>
 store i32 %<counters.(name)>, i32* @<name>, align 4
+
+>>
+
+initVec(name, counters, templates) ::= <<
+<templates.(name)>
 
 >>
 
