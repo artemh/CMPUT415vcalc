@@ -71,7 +71,7 @@ public class EvaluatorNotEquals implements Evaluator {
 					result.add(comp);
 				}
 				for (int i = smallerSize; i < largerSize; i++) {
-					result.add(0);
+					result.add(1);
 				}
 				
 			}
