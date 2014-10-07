@@ -173,6 +173,7 @@ store i32 %<counters.(name)>, i32* @<name>, align 4
 
 initVec(name, counters, templates) ::= <<
 <templates.(name)>
+store %struct.vecType* %<counters.(name)>, %struct.vecType** @<name>
 
 >>
 
