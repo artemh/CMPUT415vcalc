@@ -57,9 +57,9 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 	; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
 	
 	%new_lc = add i32 %lc, 1 
-	store i32 %new_lc, i32* %lc_ptr, align 4
+	store i32 %new_lc, i32* %lc_ptr
 	%new_offset = add i32 %offset, 1
-	store i32 %new_offset, i32* %offset_ptr, align 4
+	store i32 %new_offset, i32* %offset_ptr
 	
 	br label %print.for.range.begin
 	print.for.range.done:
@@ -85,20 +85,20 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
     ; get array ptr
     %data = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
     ; plug the array in
-    store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
+    store \<32 x i32\>* %array, \<32 x i32\>** %data
     
     ; plug in the integer values 
     %1 = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 0
-    store i32 %num_elem, i32* %1, align 4
+    store i32 %num_elem, i32* %1
     %2 = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 1
-    store i32 %blocks, i32* %2, align 4
+    store i32 %blocks, i32* %2
     
     ; need to loop over the array and set the values
     
     %lc_ptr = alloca i32
     %offset_ptr = alloca i32
-    store i32 %lbound, i32* %lc_ptr, align 4
-    store i32 0, i32* %offset_ptr, align 4
+    store i32 %lbound, i32* %lc_ptr
+    store i32 0, i32* %offset_ptr
     
     br label %for.range.begin
 	for.range.begin:
@@ -117,7 +117,7 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 	; get a pointer to the list of arrays
 	%ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
 	; load the list of arrays
-	%array_2 = load \<32 x i32\>** %ar_ptr, align 8 
+	%array_2 = load \<32 x i32\>** %ar_ptr
 	
 	; get the required array address
 	%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
@@ -127,14 +127,14 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 	%insert = insertelement \<32 x i32\> %3, i32 %lc, i32 %index_block
 	
 	;need to put it back, not sure how yet
-	store \<32 x i32\> %insert, \<32 x i32\>* %arrayidx, align 128
+	store \<32 x i32\> %insert, \<32 x i32\>* %arrayidx
 	
 	; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
 	
 	%new_lc = add i32 %lc, 1 
-	store i32 %new_lc, i32* %lc_ptr, align 4
+	store i32 %new_lc, i32* %lc_ptr
 	%new_offset = add i32 %offset, 1
-	store i32 %new_offset, i32* %offset_ptr, align 4
+	store i32 %new_offset, i32* %offset_ptr
 	
 	br label %for.range.begin
 	for.range.done:
