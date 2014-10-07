@@ -10,12 +10,12 @@ options {
 	import helpers.*;
 }
 
-@members {
+@members { 
 	SymbolTable symtab = new SymbolTable();
 	Scope currentScope = symtab.globals;
 	Type intType = new BuiltInTypeSymbol("int");
 	Type vecType = new BuiltInTypeSymbol("vector");
-}
+} 
 
 program
   : (declaration)*
