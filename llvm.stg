@@ -10,7 +10,7 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str.int = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 @.str.int.raw = private unnamed_addr constant [4 x i8] c"%d\20\00", align 1
 @.str.lbrack = private unnamed_addr constant [3 x i8] c"[ \00", align 1
-@.str.rbrack = private unnamed_addr constant [4 x i8] c" ]\0A\00", align 1
+@.str.rbrack = private unnamed_addr constant [3 x i8] c"]\0A\00", align 1
 @.str.rerror = private unnamed_addr constant [54 x i8] c"Range lower bound must be less than the upper bound.\0A\00", align 1
 <decl:{d|<d>}>
 
@@ -69,8 +69,7 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 
 define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uwtable {
     ; calculate the number of elements 
-    %num_elem_temp = sub i32 %ubound, %lbound
-    %num_elem = add i32 %num_elem_temp, 1
+    %num_elem = sub i32 %ubound, %lbound
     ; calculate the number of 32-element segments required 
     %temp = udiv i32 %num_elem, 32
     ; add 1 since division rounds down
@@ -109,27 +108,26 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 	%compar = icmp ugt i32 %lc, %ubound
 	br i1 %compar, label %for.range.done, label %for.range.next
 	for.range.next:
+		
+	; need to figure out which block the item is in
+	%block_num = udiv i32 %offset, 32
+	; need to figure out which index in that block the item is in
+	%index_block = urem i32 %offset, 32
 	
 	; get a pointer to the list of arrays
 	%ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
 	; load the list of arrays
 	%array_2 = load \<32 x i32\>** %ar_ptr, align 8 
 	
-	; need to figure out which block the item is in
-	%block_num = udiv i32 %offset, 32
-	; need to figure out which index in that block the item is in
-	%index_block = urem i32 %offset, 32
-	
 	; get the required array address
 	%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
-	
 	; get the actual array
-	%3 = load \<32 x i32\>* %arrayidx, align 128
+	%3 = load \<32 x i32\>* %arrayidx
 	
 	%insert = insertelement \<32 x i32\> %3, i32 %lc, i32 %index_block
 	
 	;need to put it back, not sure how yet
-	store \<32 x i32\> %3, \<32 x i32\>* %arrayidx, align 128
+	store \<32 x i32\> %insert, \<32 x i32\>* %arrayidx, align 128
 	
 	; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
 	
@@ -140,8 +138,6 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 	
 	br label %for.range.begin
 	for.range.done:
-    ; print statement for debugging, print 11
-    %printer = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
     ret void
 }
 
@@ -209,7 +205,7 @@ printVec(counter, expr_counter, expr) ::= <<
 <expr>
 %lbrack<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.lbrack, i32 0, i32 0))
 call void @.printVec(%struct.vecType* %<expr_counter>)
-%rbrack<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.rbrack, i32 0, i32 0))
+%rbrack<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.rbrack, i32 0, i32 0))
 
 >>
 
