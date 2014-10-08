@@ -1,1 +1,4 @@
-print(1..1000);
+vector b = 25..50;
+vector c = 1..10;
+b = c;
+print(b);

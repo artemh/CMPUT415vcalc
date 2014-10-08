@@ -385,6 +385,12 @@ store i32 %<expr_counter>, i32* <name>, align 4
 
 >>
 
+assignVec(name, expr_counter, expr) ::= <<
+<expr>
+store %struct.vecType* %<expr_counter>, %struct.vecType** <name>
+
+>>
+
 printVec(counter, expr_counter, expr) ::= <<
 <expr>
 %pre<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.lbrack, i32 0, i32 0))
@@ -471,9 +477,8 @@ br i1 %<c1>, label %range.valid<rc>, label %range.invalid<rc>
 range.valid<rc>:
     %<c2> = alloca %struct.vecType, align 8
 	call void @.range(i32 %<lhs_counter>, i32 %<rhs_counter>, %struct.vecType* %<c2>)
-	%newvector = alloca %struct.vecType, align 8
-	call void @.range(i32 1, i32 600, %struct.vecType* %newvector)
-	call void @.padVec(%struct.vecType* %<c2>, %struct.vecType* %newvector)
+	;%newvector = alloca %struct.vecType, align 8
+	;call void @.padVec(%struct.vecType* %<c2>, %struct.vecType* %newvector)
 	;call void @.extendInt(i32 1, i32 600, %struct.vecType* %<c2>);
 	br label %range.done<rc>
 range.invalid<rc>:
