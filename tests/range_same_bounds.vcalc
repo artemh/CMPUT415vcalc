@@ -1,12 +1,8 @@
 vector b = 25..50;
 vector c = 1..10;
-vector d = b-c;
-vector g = b+c;
-vector h = c-1;
-vector k = 50-b;
-print(b);
-print(c);
+vector d = b*c;
+vector k = c*2;
+vector l = 2*c;
 print(d);
-print(g);
-print(h);
 print(k);
+print(l);
