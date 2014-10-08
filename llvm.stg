@@ -235,14 +235,13 @@ define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) nou
   %rhsSizePtr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
   %lhsSize = load i32* %lhsSizePtr, align 4
   %rhsSize = load i32* %rhsSizePtr, align 4
-  
-  %compar1 = icmp eq i32 %lhsSize, %rhsSize
-  br i1 %compar1, label %pad.done, label %pad.begin
-  
-  pad.begin:
-  
+  %lhsNumPtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
+  %rhsNumPtr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+  %lhsNum = load i32* %lhsNumPtr, align 4
+  %rhsNum = load i32* %rhsNumPtr, align 4
+
   ; need to know which one is bigger
-  %compar2 = icmp slt i32 %lhsSize, %rhsSize
+  %compar2 = icmp slt i32 %lhsNum, %rhsNum
   br i1 %compar2, label %pad.lhs, label %pad.rhs
   
   pad.lhs:
