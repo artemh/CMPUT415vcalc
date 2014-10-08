@@ -230,7 +230,7 @@ define void @.addVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecTy
     ret void
 }
 
-define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwtable {
+define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) nounwind uwtable {
   %lhsSizePtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
   %rhsSizePtr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
   %lhsSize = load i32* %lhsSizePtr, align 4
@@ -277,6 +277,31 @@ define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwta
   	br label %pad.lhs.begin
   
   pad.lhs.done:
+  br i1 %flag, label %pad.lhs.ones, label %pad.lhs.done2
+	pad.lhs.ones:
+		%lhsbeginptr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
+		%lhsendptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+		%lhsbegini = load i32* %lhsbeginptr
+		%lhsbegin = add i32 %lhsbegini, 1
+		%lhsend = load i32* %lhsendptr
+		%lhspadlc_ptr = alloca i32, align 4
+		store i32 %lhsbegin, i32* %lhspadlc_ptr
+		br label %pad.lhs.onesbegin
+	pad.lhs.onesbegin:
+		%lhspadlc = load i32* %lhspadlc_ptr
+  		%lhscmp = icmp sle i32 %lhspadlc, %lhsend
+  		br i1 %lhscmp, label %pad.lhs.onesloop, label %pad.lhs.done2
+	pad.lhs.onesloop:
+		%lhsblocknum = udiv i32 %lhspadlc, 32
+		%lhsindex = urem i32 %lhspadlc, 32
+		%lhsarrayptr = getelementptr inbounds \<32 x i32\>* %array, i32 %lhsblocknum
+		%lhsarray = load \<32 x i32\>* %lhsarrayptr
+		%lhsinsert = insertelement \<32 x i32\> %lhsarray, i32 1, i32 %lhsindex
+		store \<32 x i32\> %lhsinsert, \<32 x i32\>* %lhsarrayptr
+		%lhsnewlc = add i32 %lhspadlc, 1
+		store i32 %lhsnewlc, i32* %lhspadlc_ptr, align 4
+		br label %pad.lhs.onesbegin
+	pad.lhs.done2:
   ; get array ptr
   %data = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
   ; plug the array in
@@ -323,6 +348,31 @@ define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwta
   	br label %pad.rhs.begin
   
   pad.rhs.done:
+  br i1 %flag, label %pad.rhs.ones, label %pad.rhs.done2
+	pad.rhs.ones:
+		%rhsbeginptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+		%rhsendptr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
+		%rhsbegini = load i32* %rhsbeginptr
+		%rhsbegin = add i32 %rhsbegini, 1
+		%rhsend = load i32* %rhsendptr
+		%rhspadlc_ptr = alloca i32, align 4
+		store i32 %rhsbegin, i32* %rhspadlc_ptr
+		br label %pad.rhs.onesbegin
+	pad.rhs.onesbegin:
+		%rhspadlc = load i32* %rhspadlc_ptr
+  		%rhscmp = icmp sle i32 %rhspadlc, %rhsend
+  		br i1 %rhscmp, label %pad.rhs.onesloop, label %pad.rhs.done2
+	pad.rhs.onesloop:
+		%rhsblocknum = udiv i32 %rhspadlc, 32
+		%rhsindex = urem i32 %rhspadlc, 32
+		%rhsarrayptr = getelementptr inbounds \<32 x i32\>* %arrayr, i32 %rhsblocknum
+		%rhsarray = load \<32 x i32\>* %rhsarrayptr
+		%rhsinsert = insertelement \<32 x i32\> %rhsarray, i32 1, i32 %rhsindex
+		store \<32 x i32\> %rhsinsert, \<32 x i32\>* %rhsarrayptr
+		%rhsnewlc = add i32 %rhspadlc, 1
+		store i32 %rhsnewlc, i32* %rhspadlc_ptr, align 4
+		br label %pad.rhs.onesbegin
+	pad.rhs.done2:
   ; get array ptr
   %datar = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
   ; plug the array in
@@ -601,7 +651,7 @@ addIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>)
+call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.addVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -645,7 +695,7 @@ subIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 subVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>)
+call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.subVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -689,7 +739,7 @@ mulIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 mulVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>)
+call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.mulVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -739,7 +789,7 @@ range.valid<rc>:
     %<c2> = alloca %struct.vecType, align 8
 	call void @.range(i32 %<lhs_counter>, i32 %<rhs_counter>, %struct.vecType* %<c2>)
 	;%newvector = alloca %struct.vecType, align 8
-	;call void @.padVec(%struct.vecType* %<c2>, %struct.vecType* %newvector)
+	;call void @.padVec(%struct.vecType* %<c2>, %struct.vecType* %newvector, i1 0)
 	;call void @.extendInt(i32 1, i32 600, %struct.vecType* %<c2>);
 	br label %range.done<rc>
 range.invalid<rc>:
