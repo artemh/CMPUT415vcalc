@@ -1,4 +1,4 @@
 vector b = 25..50;
 vector c = 1..10;
-vector d = b + c;
+vector d = 7 + c;
 print(d);
