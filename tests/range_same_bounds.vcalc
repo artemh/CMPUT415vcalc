@@ -1,3 +1,1 @@
-vector b = 1..11;
-vector c = 12..32;
-print(c);
+print(1..1000);

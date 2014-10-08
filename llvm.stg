@@ -65,8 +65,8 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 }
 
 define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwtable {
-  %lhsSizePtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
-  %rhsSizePtr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+  %lhsSizePtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
+  %rhsSizePtr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
   %lhsSize = load i32* %lhsSizePtr, align 4
   %rhsSize = load i32* %rhsSizePtr, align 4
   
@@ -74,18 +74,14 @@ define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwta
   br i1 %compar1, label %pad.done, label %pad.begin
   
   pad.begin:
+  
   ; need to know which one is bigger
   %compar2 = icmp slt i32 %lhsSize, %rhsSize
   br i1 %compar2, label %pad.lhs, label %pad.rhs
   
   pad.lhs:
-  ; allocate a vector of rhs_size
-  ; calculate the number of 32-element segments required 
-  %temp = sdiv i32 %rhs_size, 32
-  ; add 1 since division rounds down
-  %blocks = add i32 %temp, 1
   ; need this because calloc expects i64
-  %blocks64 = sext i32 %blocks to i64 
+  %blocks64 = sext i32 %rhsSize to i64 
   ; allocate memory for the array
   %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
   %array = bitcast i8* %call to \<32 x i32\>*
@@ -96,18 +92,86 @@ define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwta
   store i32 0, i32* %lc_ptr, align 4
   store i32 0, i32* %offset_ptr, align 4
   
-  br label %pad.lhs.loop
-  pad.lhs.loop:
+  br label %pad.lhs.begin
+  pad.lhs.begin:
+  	%lc = load i32* %lc_ptr
+  	%compar3 = icmp slt i32 %lc, %lhsSize
+  	br i1 %compar3, label %pad.lhs.loop, label %pad.lhs.done
   
+  pad.lhs.loop:
+  	%ar_ptr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
+  	%array_2 = load \<32 x i32\>** %ar_ptr, align 8
+  	%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %lc
+  	%newarrayidx = getelementptr inbounds \<32 x i32\>* %array, i32 %lc
+  	%array_old = load \<32 x i32\>* %arrayidx, align 8
+  	store \<32 x i32\> %array_old, \<32 x i32\>* %newarrayidx
+  	
+  	%newlc = add i32 %lc, 1
+  	store i32 %newlc, i32* %lc_ptr, align 4
+  	br label %pad.lhs.begin
+  
+  pad.lhs.done:
   ; get array ptr
   %data = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
   ; plug the array in
   store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
+  %rhs0 = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+  %lhs0 = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
+  %load0 = load i32* %rhs0, align 4
+  store i32 %load0, i32* %lhs0, align 4
+  %rhs1 = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
+  %lhs1 = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
+  %load1 = load i32* %rhs1, align 4
+  store i32 %load1, i32* %lhs1, align 4
+  br label %pad.done
   
   
   
-  pad.rhs: 
-  ; allocate a vector of lhs_size
+  pad.rhs:
+  ; need this because calloc expects i64
+  %blocks64r = sext i32 %lhsSize to i64 
+  ; allocate memory for the array
+  %callr = call noalias i8* @calloc(i64 %blocks64r, i64 128)
+  %arrayr = bitcast i8* %callr to \<32 x i32\>*
+  
+  ; now loop over lhs_size number of elements and copy lhs elements
+  %lc_ptrr = alloca i32
+  %offset_ptrr = alloca i32
+  store i32 0, i32* %lc_ptrr, align 4
+  store i32 0, i32* %offset_ptrr, align 4
+  
+  br label %pad.rhs.begin
+  pad.rhs.begin:
+  	%lcr = load i32* %lc_ptrr
+  	%compar3r = icmp slt i32 %lc, %rhsSize
+  	br i1 %compar3r, label %pad.rhs.loop, label %pad.rhs.done
+  
+  pad.rhs.loop:
+  	%ar_ptrr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
+  	%array_2r = load \<32 x i32\>** %ar_ptrr, align 8
+  	%arrayidxr = getelementptr inbounds \<32 x i32\>* %array_2r, i32 %lc
+  	%newarrayidxr = getelementptr inbounds \<32 x i32\>* %array, i32 %lc
+  	%array_oldr = load \<32 x i32\>* %arrayidxr, align 8
+  	store \<32 x i32\> %array_oldr, \<32 x i32\>* %newarrayidxr
+  	
+  	%newlcr = add i32 %lcr, 1
+  	store i32 %newlcr, i32* %lc_ptrr, align 4
+  	br label %pad.lhs.begin
+  
+  pad.rhs.done:
+  ; get array ptr
+  %datar = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
+  ; plug the array in
+  store \<32 x i32\>* %arrayr, \<32 x i32\>** %datar, align 8
+  %rhs0r = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+  %lhs0r = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
+  %load0r = load i32* %lhs0r, align 4
+  store i32 %load0r, i32* %rhs1r, align 4
+  %rhs1r = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
+  %lhs1r = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
+  %load1r = load i32* %lhs1r, align 4
+  store i32 %load1r, i32* %rhs1r, align 4
+  br label %pad.done
   
   pad.done:
   ret void
@@ -192,9 +256,9 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
     
     ; need this because calloc expects i64
     %blocks64 = zext i32 %blocks to i64 
-  ; allocate memory for the array
-  %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
-  %array = bitcast i8* %call to \<32 x i32\>*
+  	; allocate memory for the array
+  	%call = call noalias i8* @calloc(i64 %blocks64, i64 128)
+  	%array = bitcast i8* %call to \<32 x i32\>*
     ; get array ptr
     %data = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
     ; plug the array in
@@ -407,7 +471,10 @@ br i1 %<c1>, label %range.valid<rc>, label %range.invalid<rc>
 range.valid<rc>:
     %<c2> = alloca %struct.vecType, align 8
 	call void @.range(i32 %<lhs_counter>, i32 %<rhs_counter>, %struct.vecType* %<c2>)
-	;call void @.extendInt(i32 7, i32 22, %struct.vecType* %<c2>);
+	%newvector = alloca %struct.vecType, align 8
+	call void @.range(i32 1, i32 600, %struct.vecType* %newvector)
+	call void @.padVec(%struct.vecType* %<c2>, %struct.vecType* %newvector)
+	;call void @.extendInt(i32 1, i32 600, %struct.vecType* %<c2>);
 	br label %range.done<rc>
 range.invalid<rc>:
 	%rerror<rc> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([54 x i8]* @.str.rerror, i32 0, i32 0))
