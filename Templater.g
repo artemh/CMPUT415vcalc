@@ -139,7 +139,7 @@ block
 expression returns [int c, Type tsym]
   : ^('==' lhs=expression rhs=expression)
     {
-      counter = counter + 2;
+      counter++;
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
@@ -149,7 +149,7 @@ expression returns [int c, Type tsym]
     -> eqIntInt(c1 = {counter - 1}, c2 = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('!=' lhs=expression rhs=expression)
 {
-      counter = counter + 2;
+      counter++;
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
@@ -159,7 +159,7 @@ expression returns [int c, Type tsym]
     -> neIntInt(c1 = {counter - 1}, c2 = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('<' lhs=expression rhs=expression)
 {
-      counter = counter + 2;
+      counter++;
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
@@ -169,7 +169,7 @@ expression returns [int c, Type tsym]
     -> ltIntInt(c1 = {counter - 1}, c2 = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
   | ^('>' lhs=expression rhs=expression)
 {
-      counter = counter + 2;
+      counter++;
       $c = counter;
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
@@ -255,9 +255,10 @@ expression returns [int c, Type tsym]
         throw new RuntimeException("Invalid type");
       }
       String scope = symbol.scope.getScopeName();
+      String name = resolveVar($VARNUM.text);
     }
-    -> {scope.equals("global")}? varnum(counter = {$c}, name = {"@" + $VARNUM.text})
-    -> varnum(counter = {$c}, name = {"\%" + $VARNUM.text})
+    -> {symbol.getType().equals(vecType)}? varnumVec(counter = {$c}, name = {name})
+    -> varnumInt(counter = {$c}, name = {name})
   | INTEGER
     {
       counter++;

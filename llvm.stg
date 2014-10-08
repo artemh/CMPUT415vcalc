@@ -161,7 +161,7 @@ declInt(name) ::= <<
 >>
 
 declVec() ::= <<
-@<name> = global %struct.vecType*
+@<name> = global %struct.vecType* null
 
 >>
 
@@ -209,9 +209,9 @@ store i32 %<expr_counter>, i32* <name>, align 4
 
 printVec(counter, expr_counter, expr) ::= <<
 <expr>
-%lbrack<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.lbrack, i32 0, i32 0))
+%pre<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.lbrack, i32 0, i32 0))
 call void @.printVec(%struct.vecType* %<expr_counter>)
-%rbrack<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.rbrack, i32 0, i32 0))
+%<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.rbrack, i32 0, i32 0))
 
 >>
 
@@ -225,35 +225,35 @@ block(s) ::= <<
 <s:{x|<x>}>
 >>
 
-eqIntInt(c1, c2, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+eqIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-%<c1> = icmp eq i32 %<lhs_counter>, %<rhs_counter>
-%<c2> = zext i1 %<c1> to i32
+%pre<counter> = icmp eq i32 %<lhs_counter>, %<rhs_counter>
+%<counter> = zext i1 %pre<counter> to i32
 
 >>
 
-neIntInt(c1, c2, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+neIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-%<c1> = icmp ne i32 %<lhs_counter>, %<rhs_counter>
-%<c2> = zext i1 %<c1> to i32
+%pre<counter> = icmp ne i32 %<lhs_counter>, %<rhs_counter>
+%<counter> = zext i1 %pre<counter> to i32
 
 >>
 
-ltIntInt(c1, c2, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+ltIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-%<c1> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
-%<c2> = zext i1 %<c1> to i32
+%pre<counter> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
+%<counter> = zext i1 %pre<counter> to i32
 
 >>
 
-gtIntInt(c1, c2, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+gtIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-%<c1> = icmp ugt i32 %<lhs_counter>, %<rhs_counter>
-%<c2> = zext i1 %<c1> to i32
+%pre<counter> = icmp ugt i32 %<lhs_counter>, %<rhs_counter>
+%<counter> = zext i1 %pre<counter> to i32
 
 >>
 
@@ -301,8 +301,12 @@ range.done<rc>:
 
 >>
 
-varnum(counter, name) ::= <<
+varnumInt(counter, name) ::= <<
 %<counter> = load i32* <name>
+>>
+
+varnumVec(counter, name) ::= <<
+%<counter> = load %struct.vecType** <name>
 >>
 
 integer(counter, value) ::= <<
