@@ -22,46 +22,96 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 	%print_num = load i32* %print_num_ptr, align 4
 
 	; need to loop over the array and print the values
-    
     %lc_ptr = alloca i32
     %offset_ptr = alloca i32
     store i32 0, i32* %lc_ptr, align 4
     store i32 0, i32* %offset_ptr, align 4
     
     br label %print.for.range.begin
-		print.for.range.begin:
-		%lc = load i32* %lc_ptr
-		%offset = load i32* %offset_ptr
-		
-		%compar = icmp ugt i32 %lc, %print_num
-		br i1 %compar, label %print.for.range.done, label %print.for.range.next
-		print.for.range.next:
-		
-		; get a pointer to the list of arrays
-		%ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
-		; load the list of arrays
-		%array_2 = load \<32 x i32\>** %ar_ptr, align 8 
-		
-		; need to figure out which block the item is in
-		%block_num = udiv i32 %offset, 32
-		; need to figure out which index in that block the item is in
-		%index_block = urem i32 %offset, 32
-		
-		%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
-		%1 = load \<32 x i32\>* %arrayidx
-		%value = extractelement \<32 x i32\> %1, i32 %index_block
-		
-		%printerVec3 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %value)
-			
-		%new_lc = add i32 %lc, 1 
-		store i32 %new_lc, i32* %lc_ptr, align 4
-		%new_offset = add i32 %offset, 1
-		store i32 %new_offset, i32* %offset_ptr, align 4
-		
-		br label %print.for.range.begin
-		print.for.range.done:
-		
-		ret void
+	print.for.range.begin:
+	%lc = load i32* %lc_ptr
+	%offset = load i32* %offset_ptr
+	%compar = icmp ugt i32 %lc, %print_num
+	br i1 %compar, label %print.for.range.done, label %print.for.range.next
+	print.for.range.next:
+	; get a pointer to the list of arrays
+	%ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
+	; load the list of arrays
+	%array_2 = load \<32 x i32\>** %ar_ptr, align 8 
+	; need to figure out which block the item is in
+	%block_num = udiv i32 %offset, 32
+	; need to figure out which index in that block the item is in
+	%index_block = urem i32 %offset, 32
+	%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
+	%1 = load \<32 x i32\>* %arrayidx
+	%value = extractelement \<32 x i32\> %1, i32 %index_block
+	%printerVec3 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %value)
+	%new_lc = add i32 %lc, 1 
+	store i32 %new_lc, i32* %lc_ptr, align 4
+	%new_offset = add i32 %offset, 1
+	store i32 %new_offset, i32* %offset_ptr, align 4
+	br label %print.for.range.begin
+	print.for.range.done:
+	ret void
+}
+
+; This function assumes same size
+define void @.addVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecType* %result) nounwind uwtable {
+    %SizePtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
+    %Size = load i32* %SizePtr, align 4
+
+    ; need this because calloc expects i64
+    %blocks64 = sext i32 %Size to i64
+    ; allocate memory for the array
+    %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
+    %array = bitcast i8* %call to \<32 x i32\>*
+  	
+    ; set integer values
+    %numPtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
+    %num = load i32* %numPtr, align 4
+    %newNumPtr = getelementptr inbounds %struct.vecType* %result, i32 0, i32 0
+    store i32 %num, i32* %newNumPtr, align 4
+    %newBlockPtr = getelementptr inbounds %struct.vecType* %result, i32 0, i32 1
+    store i32 %Size, i32* %newBlockPtr, align 4
+	
+    ; now loop over Size number of blocks and add
+    %lc_ptra = alloca i32
+    store i32 0, i32* %lc_ptra, align 4
+	
+    br label %add.loop.begin
+    add.loop.begin:
+    %lc = load i32* %lc_ptra
+    %compar3 = icmp slt i32 %lc, %Size
+    br i1 %compar3, label %add.loop, label %add.done
+  		
+    add.loop:
+    ;perform addition
+    %ar_ptr_lhs = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
+    %ar_ptr_rhs = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
+    %array_lhs = load \<32 x i32\>** %ar_ptr_lhs, align 8
+    %array_rhs = load \<32 x i32\>** %ar_ptr_rhs, align 8
+  	
+    %vector_lhs_idx = getelementptr inbounds \<32 x i32\>* %array_lhs, i32 %lc
+    %vector_rhs_idx = getelementptr inbounds \<32 x i32\>* %array_rhs, i32 %lc
+    %result_idx = getelementptr inbounds \<32 x i32\>* %array, i32 %lc
+  	
+    %vector_lhs = load \<32 x i32\>* %vector_lhs_idx, align 8
+    %vector_rhs = load \<32 x i32\>* %vector_rhs_idx, align 8
+  	
+    %vector_result = add \<32 x i32\> %vector_lhs, %vector_rhs
+  	
+    store \<32 x i32\> %vector_result, \<32 x i32\>* %result_idx
+	
+    %newlc = add i32 %lc, 1
+    store i32 %newlc, i32* %lc_ptra, align 4
+    br label %add.loop.begin
+
+    add.done:
+    ; plug in the array into the new struct
+    %data = getelementptr inbounds %struct.vecType* %result, i32 0, i32 2
+    ; plug the array in
+    store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
+    ret void
 }
 
 define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwtable {
@@ -253,7 +303,6 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
     %temp = udiv i32 %num_elem, 32
     ; add 1 since division rounds down
     %blocks = add i32 %temp, 1
-    
     ; need this because calloc expects i64
     %blocks64 = zext i32 %blocks to i64 
   	; allocate memory for the array
@@ -263,59 +312,46 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
     %data = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
     ; plug the array in
     store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
-    
     ; plug in the integer values 
     %1 = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 0
     store i32 %num_elem, i32* %1, align 4
     %2 = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 1
     store i32 %blocks, i32* %2, align 4
-    
     ; need to loop over the array and set the values
-    
     %lc_ptr = alloca i32
     %offset_ptr = alloca i32
     store i32 %lbound, i32* %lc_ptr, align 4
     store i32 0, i32* %offset_ptr, align 4
-    
     br label %for.range.begin
-		  for.range.begin:
-		  %lc = load i32* %lc_ptr
-		  %offset = load i32* %offset_ptr
-		  
-		  %compar = icmp ugt i32 %lc, %ubound
-		  br i1 %compar, label %for.range.done, label %for.range.next
-		  for.range.next:
-		    
-		  ; need to figure out which block the item is in
-		  %block_num = udiv i32 %offset, 32
-		  ; need to figure out which index in that block the item is in
-		  %index_block = urem i32 %offset, 32
-		  
-		  ; get a pointer to the list of arrays
-		  %ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
-		  ; load the list of arrays
-		  %array_2 = load \<32 x i32\>** %ar_ptr, align 8 
-		  
-		  ; get the required array address
-		  %arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
-		  ; get the actual array
-		  %3 = load \<32 x i32\>* %arrayidx
-		  
-		  %insert = insertelement \<32 x i32\> %3, i32 %lc, i32 %index_block
-		  
-		  ;need to put it back, not sure how yet
-		  store \<32 x i32\> %insert, \<32 x i32\>* %arrayidx
-		  
-		  ; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
-		  
-		  %new_lc = add i32 %lc, 1 
-		  store i32 %new_lc, i32* %lc_ptr, align 4
-		  %new_offset = add i32 %offset, 1
-		  store i32 %new_offset, i32* %offset_ptr, align 4
-  
-	  br label %for.range.begin
-	  for.range.done:
-	    ret void
+    for.range.begin:
+    %lc = load i32* %lc_ptr
+    %offset = load i32* %offset_ptr
+    %compar = icmp ugt i32 %lc, %ubound
+    br i1 %compar, label %for.range.done, label %for.range.next
+    for.range.next:  
+    ; need to figure out which block the item is in
+    %block_num = udiv i32 %offset, 32
+    ; need to figure out which index in that block the item is in
+    %index_block = urem i32 %offset, 32  
+    ; get a pointer to the list of arrays
+    %ar_ptr = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 2
+    ; load the list of arrays
+    %array_2 = load \<32 x i32\>** %ar_ptr, align 8  
+    ; get the required array address
+    %arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
+    ; get the actual array
+    %3 = load \<32 x i32\>* %arrayidx  
+    %insert = insertelement \<32 x i32\> %3, i32 %lc, i32 %index_block 
+    ;need to put it back, not sure how yet
+    store \<32 x i32\> %insert, \<32 x i32\>* %arrayidx
+    ; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11) 
+    %new_lc = add i32 %lc, 1 
+    store i32 %new_lc, i32* %lc_ptr, align 4
+    %new_offset = add i32 %offset, 1
+    store i32 %new_offset, i32* %offset_ptr, align 4
+    br label %for.range.begin
+    for.range.done:
+    ret void
 }
 
 
@@ -445,6 +481,15 @@ addIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %<counter> = add i32 %<lhs_counter>, %<rhs_counter>
+
+>>
+
+addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>)
+%<counter> = alloca %struct.vecType, align 8
+call void @.addVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
 >>
 
