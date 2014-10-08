@@ -1,8 +1,2 @@
-vector b = 25..50;
-vector c = 1..10;
-vector d = b*c;
-vector k = c*2;
-vector l = 2*c;
-print(d);
-print(k);
-print(l);
+print(1..10 + 20..90);
+print(20..90 + 1..10);

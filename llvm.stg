@@ -291,8 +291,6 @@ define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwta
   store i32 %load1, i32* %lhs1, align 4
   br label %pad.done
   
-  
-  
   pad.rhs:
   ; need this because calloc expects i64
   %blocks64r = sext i32 %lhsSize to i64 
@@ -309,20 +307,20 @@ define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwta
   br label %pad.rhs.begin
   pad.rhs.begin:
   	%lcr = load i32* %lc_ptrr
-  	%compar3r = icmp slt i32 %lc, %rhsSize
+  	%compar3r = icmp slt i32 %lcr, %rhsSize
   	br i1 %compar3r, label %pad.rhs.loop, label %pad.rhs.done
   
   pad.rhs.loop:
   	%ar_ptrr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
   	%array_2r = load \<32 x i32\>** %ar_ptrr, align 8
-  	%arrayidxr = getelementptr inbounds \<32 x i32\>* %array_2r, i32 %lc
-  	%newarrayidxr = getelementptr inbounds \<32 x i32\>* %array, i32 %lc
+  	%arrayidxr = getelementptr inbounds \<32 x i32\>* %array_2r, i32 %lcr
+  	%newarrayidxr = getelementptr inbounds \<32 x i32\>* %arrayr, i32 %lcr
   	%array_oldr = load \<32 x i32\>* %arrayidxr, align 8
   	store \<32 x i32\> %array_oldr, \<32 x i32\>* %newarrayidxr
   	
   	%newlcr = add i32 %lcr, 1
   	store i32 %newlcr, i32* %lc_ptrr, align 4
-  	br label %pad.lhs.begin
+  	br label %pad.rhs.begin
   
   pad.rhs.done:
   ; get array ptr
