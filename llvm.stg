@@ -64,6 +64,55 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 		ret void
 }
 
+define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs) nounwind uwtable {
+  %lhsSizePtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
+  %rhsSizePtr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+  %lhsSize = load i32* %lhsSizePtr, align 4
+  %rhsSize = load i32* %rhsSizePtr, align 4
+  
+  %compar1 = icmp eq i32 %lhsSize, %rhsSize
+  br i1 %compar1, label %pad.done, label %pad.begin
+  
+  pad.begin:
+  ; need to know which one is bigger
+  %compar2 = icmp slt i32 %lhsSize, %rhsSize
+  br i1 %compar2, label %pad.lhs, label %pad.rhs
+  
+  pad.lhs:
+  ; allocate a vector of rhs_size
+  ; calculate the number of 32-element segments required 
+  %temp = sdiv i32 %rhs_size, 32
+  ; add 1 since division rounds down
+  %blocks = add i32 %temp, 1
+  ; need this because calloc expects i64
+  %blocks64 = sext i32 %blocks to i64 
+  ; allocate memory for the array
+  %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
+  %array = bitcast i8* %call to \<32 x i32\>*
+  
+  ; now loop over lhs_size number of elements and copy lhs elements
+  %lc_ptr = alloca i32
+  %offset_ptr = alloca i32
+  store i32 0, i32* %lc_ptr, align 4
+  store i32 0, i32* %offset_ptr, align 4
+  
+  br label %pad.lhs.loop
+  pad.lhs.loop:
+  
+  ; get array ptr
+  %data = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
+  ; plug the array in
+  store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
+  
+  
+  
+  pad.rhs: 
+  ; allocate a vector of lhs_size
+  
+  pad.done:
+  ret void
+}
+
 define void @.extendInt(i32 %integer, i32 %size_i, %struct.vecType* %ptr) nounwind uwtable {
   %size = sub i32 %size_i, 1
   ; calculate the number of 32-element segments required 
@@ -133,7 +182,6 @@ define void @.extendInt(i32 %integer, i32 %size_i, %struct.vecType* %ptr) nounwi
   ret void
 }
 
-
 define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uwtable {
     ; calculate the number of elements 
     %num_elem = sub i32 %ubound, %lbound
@@ -192,7 +240,7 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 		  %insert = insertelement \<32 x i32\> %3, i32 %lc, i32 %index_block
 		  
 		  ;need to put it back, not sure how yet
-		  store \<32 x i32\> %insert, \<32 x i32\>* %arrayidx, align 128
+		  store \<32 x i32\> %insert, \<32 x i32\>* %arrayidx
 		  
 		  ; %printer2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 11)
 		  
