@@ -5,6 +5,10 @@ Vcalc assignment for CMPUT 415
 
 
 
+
+
+
+
 Priorities:
 
 
