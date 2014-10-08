@@ -447,8 +447,32 @@ define void @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) nou
   pad.done:
   br i1 %flag, label %pad.denum, label %pad.done2
   pad.denum:
+  ; need to know rhs block num and size 
+  %denum_num_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+  %denum_blk_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
+  %denum_num = load i32* %denum_num_ptr, align 4
+  %denum_blk = load i32* %denum_blk_ptr, align 4
+  ; need total number of integers allocated, i.e. blocks*32
+  %max_ind = mul i32 %denum_blk, 32
+  ; loop from denum_num to max_ind and set all values to 1
+  %denum_lc_ptr = alloca i32, align 4
+  store i32 %denum_num, i32* %denum_lc_ptr, align 4
   
+  br label %denum.loop
+  denum.loop:
+      %denum_lc = load i32* %denum_lc_ptr
+      %denumcmp = icmp ult i32 %denum_lc, %max_ind
+      br i1 %rhscmp, label %denum.begin, label %denum.done
+  denum.begin:
+
+  	  ;increment the counter
+  	  %new_denum_lc = add i32 %denum_lc, 1
+  	  store i32 %new_denum_lc, i32* %denum_lc_ptr, align 4
+  	  br label %denum.loop
   
+  denum.done:
+  ; plug the padded denum back in
+  br label %pad.done2
   pad.done2:
   ret void
 }
