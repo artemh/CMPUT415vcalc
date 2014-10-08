@@ -48,7 +48,7 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
 	%index_block = urem i32 %offset, 32
 	
 	%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %block_num
-	%1 = load \<32 x i32\>* %arrayidx, align 128
+	%1 = load \<32 x i32\>* %arrayidx
 	%value = extractelement \<32 x i32\> %1, i32 %index_block
 	
 	;%printerVec1 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %block_num)
