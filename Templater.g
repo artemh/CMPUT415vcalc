@@ -257,6 +257,7 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
   | filter
     {
       $tsym = vecType;
+      $c = $filter.c;
     } -> write(input = {$filter.st})
   | index
     {
@@ -321,14 +322,15 @@ index returns [Type tsym]
   }
   ;
 
-filter
+filter returns [int c]
 @init {
 currentScope = new LocalScope(currentScope);
 }
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(FILT VARNUM { fgc++; currentScope.define(new VarSymbol($VARNUM.text, intType, fgc)); } op1=expression op2=expression)
+  : ^(FILT VARNUM { fgc++; currentScope.define(new VarSymbol($VARNUM.text, intType, fgc)); } op1=expression op2=expression) { counter++; $c = counter; }
+    -> filter(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, fgc = {fgc})
   ;
 
 generator returns [int c]
@@ -352,8 +354,8 @@ currentScope = currentScope.getEnclosingScope();
       $c = counter;
     }
   }
-    -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"}, gc = {fgc})
-    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {""}, gc = {fgc})
+    -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"}, fgc = {fgc})
+    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {""}, fgc = {fgc})
   ;
 
 type returns [Type tsym]
