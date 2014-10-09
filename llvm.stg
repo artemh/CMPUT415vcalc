@@ -1372,8 +1372,7 @@ gen<counter>.pad:
     %<counter> = alloca %struct.vecType, align 8
     %sgptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
     %sgt<counter> = load i32* %sgptr<counter>, align 4
-    %sg<counter> = sub i32 %sgt<counter>, 1
-    <flag>call void @.extendInt(i32 %<exp_counter>, i32 %sg<counter>, %struct.vecType* %<counter>)
+    <flag>call void @.extendInt(i32 %<exp_counter>, i32 %sgt<counter>, %struct.vecType* %<counter>)
     br label %gen<counter>.done
 gen<counter>.done:
 >>
