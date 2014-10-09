@@ -89,7 +89,7 @@ define void @.indexVec(%struct.vecType* %source, %struct.vecType* %index, %struc
     %array = bitcast i8* %call to \<32 x i32\>*
     
     %src_ar_ptr = getelementptr inbounds %struct.vecType* %source, i32 0, i32 2
-    %ind_ar_ptr = getelementptr inbounds %struct.vecType* %source, i32 0, i32 2
+    %ind_ar_ptr = getelementptr inbounds %struct.vecType* %index, i32 0, i32 2
 
     %src_array = load \<32 x i32\>** %src_ar_ptr, align 8
     %ind_array = load \<32 x i32\>** %ind_ar_ptr, align 8
@@ -101,11 +101,11 @@ define void @.indexVec(%struct.vecType* %source, %struct.vecType* %index, %struc
     br label %indexvec.begin
     indexvec.begin:
         %lc = load i32* %lc_ptr
-        %compar = icmp ult i32 %lc, %indexSize
-        br i1 %compar, label %indexvec.next, label %indexvec.done
+        %compar = icmp ule i32 %lc, %indexSize
         
+        br i1 %compar, label %indexvec.next, label %indexvec.done
     indexvec.next:
-        ; do stuff
+        ; do stuff        
         ; get the index element
         ; need to figure out which block the item is in
         %ind_block_num = udiv i32 %lc, 32
@@ -114,17 +114,18 @@ define void @.indexVec(%struct.vecType* %source, %struct.vecType* %index, %struc
         %ind_arrayidx = getelementptr inbounds \<32 x i32\>* %ind_array, i32 %ind_block_num
         %index_ar = load \<32 x i32\>* %ind_arrayidx
         %index_value = extractelement \<32 x i32\> %index_ar, i32 %ind_index_block
-        
         ; see if out of bounds
         %lzero = icmp slt i32 %index_value, 0
         br i1 %lzero, label %indexvec.zero, label %indexvec.next2
         
     indexvec.next2:
-        %gsize = icmp uge i32 %index_value, %sourceSize    
+        %gsize = icmp ugt i32 %index_value, %sourceSize    
         br i1 %gsize, label %indexvec.zero, label %indexvec.next3
         
     indexvec.next3:
-        ; not zero, get the value    
+        ; not zero, get the value  
+        %iprinter5 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 42222)  
+        %iprinter6 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %index_value) 
         ; need to figure out which block the item is in
         %src_block_num = udiv i32 %index_value, 32
         ; need to figure out which index in that block the item is in
@@ -133,6 +134,7 @@ define void @.indexVec(%struct.vecType* %source, %struct.vecType* %index, %struc
         %src_arrayidx = getelementptr inbounds \<32 x i32\>* %src_array, i32 %src_block_num
         %src_ar = load \<32 x i32\>* %src_arrayidx
         %src_value = extractelement \<32 x i32\> %src_ar, i32 %src_index_block
+        %iprinter61 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %src_value) 
         
         %dest_arrayidx = getelementptr inbounds \<32 x i32\>* %array, i32 %ind_block_num
         %dest_ar = load \<32 x i32\>* %dest_arrayidx
@@ -1258,9 +1260,9 @@ addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 ;addVecVec
 <lhs>
 <rhs>
-%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+;%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
-call void @.addVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
+call void @.indexVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
 >>
 
