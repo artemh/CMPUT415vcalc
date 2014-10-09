@@ -1532,10 +1532,12 @@ filter<counter>.loop:
     store i32 %value<counter>, i32* %<var><fgc>
     <exp>
     %compar2<counter> = icmp ne i32 %<exp_counter>, 0
+    %fprinter22 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<exp_counter>)
     br i1 %compar2<counter>, label %filter<counter>.add, label %filter<counter>.next
 
 filter<counter>.add:
     %nc<counter> = load i32* %nc_ptr<counter>
+    %fprinter2 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %nc<counter>)
     %array_block_num<counter> = udiv i32 %nc<counter>, 32
     %array_block_index<counter> = urem i32 %nc<counter>, 32
     %arrayidx2<counter> = getelementptr inbounds \<32 x i32\>* %array<counter>, i32 %array_block_num<counter>
