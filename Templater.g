@@ -136,7 +136,7 @@ block
     -> block(s = {$s})
   ;
 
-expression returns [int c, Type tsym]
+expression returns [int c, Type tsym, ArrayList<String> varNames = new ArrayList<String>();]
   : ^('==' lhs=expression rhs=expression)
     {
       counter++;
@@ -245,6 +245,7 @@ expression returns [int c, Type tsym]
     } -> write(input = {$index.st})
   | VARNUM
     {
+      varNames.add($VARNUM.text);  
       counter++;
       $c = counter;
       Symbol symbol = currentScope.resolve($VARNUM.text);
@@ -308,7 +309,15 @@ currentScope = new LocalScope(currentScope);
 currentScope = currentScope.getEnclosingScope();
 }
   : ^(GEN VARNUM {currentScope.define(new VarSymbol($VARNUM.text, vecType, 0));} op1=expression op2=expression) { counter++; $c = counter; }
-    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st})
+  {
+    boolean flag = false;
+    ArrayList<String> list = $op2.varNames;
+    for (String name : list) {
+        if(name.equals($VARNUM.text)) { flag = true; } 
+    }
+  }
+    -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"})
+    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {""})
   ;
 
 type returns [Type tsym]
