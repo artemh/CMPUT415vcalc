@@ -303,13 +303,15 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
     -> integer(counter = {$c}, value = {Integer.parseInt($INTEGER.text)})
   ;
 
-index returns [Type tsym]
+index returns [Type tsym, int c]
 @init {
 	ArrayList<Type> indexTypes = new ArrayList<Type>();
 }
   :	^(INDEX e1=expression ^(INDECES (exp=expression {indexTypes.add($exp.tsym);})+))
   {
   	$tsym = vecType;
+  	counter++;
+    $c = counter;
   	for (int i = 0; i < indexTypes.size(); i++) {
   		Type t = indexTypes.get(i);
   		if (t.equals(intType)) {
@@ -322,6 +324,8 @@ index returns [Type tsym]
   		}
   	}
   }
+  -> {indexTypes.get(0).equals(vecType)}? indexVec(counter = {$c}, lhs_counter = {$e1.c}, lhs = {$e1.st}, rhs_counter = {$exp.c}, rhs = {$exp.st})
+  -> indexInt()
   ;
 
 filter returns [int c]

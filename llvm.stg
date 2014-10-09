@@ -124,8 +124,6 @@ define void @.indexVec(%struct.vecType* %source, %struct.vecType* %index, %struc
         
     indexvec.next3:
         ; not zero, get the value  
-        %iprinter5 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 42222)  
-        %iprinter6 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %index_value) 
         ; need to figure out which block the item is in
         %src_block_num = udiv i32 %index_value, 32
         ; need to figure out which index in that block the item is in
@@ -134,7 +132,6 @@ define void @.indexVec(%struct.vecType* %source, %struct.vecType* %index, %struc
         %src_arrayidx = getelementptr inbounds \<32 x i32\>* %src_array, i32 %src_block_num
         %src_ar = load \<32 x i32\>* %src_arrayidx
         %src_value = extractelement \<32 x i32\> %src_ar, i32 %src_index_block
-        %iprinter61 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %src_value) 
         
         %dest_arrayidx = getelementptr inbounds \<32 x i32\>* %array, i32 %ind_block_num
         %dest_ar = load \<32 x i32\>* %dest_arrayidx
@@ -1260,9 +1257,36 @@ addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 ;addVecVec
 <lhs>
 <rhs>
-%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+;%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.indexVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
+
+>>
+
+indexVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+;indexVec
+<lhs>
+<rhs>
+%sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
+%sizePtrRhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
+%size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
+%size<rhs_counter> = load i32* %sizePtrRhs<rhs_counter>, align 4
+%ind_compar<counter> = icmp ult i32 %size<lhs_counter>, %size<rhs_counter>
+br i1 %ind_compar<counter>, label %ind_vl<counter>, label %ind_vr<counter>
+ind_vl<counter>:
+;pad
+%smSizei<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+br label %ind_do<counter>
+ind_vr<counter>:
+;nopad
+br label %ind_do<counter>
+ind_do<counter>:
+%<counter> = alloca %struct.vecType, align 8
+call void @.indexVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
+
+>>
+
+indexInt() ::= <<
 
 >>
 
