@@ -1451,12 +1451,11 @@ range.done<rc>:
 
 >>
 
-generator(counter, var, d_counter, d, exp_counter, exp, flag, gc) ::= <<
+generator(counter, var, d_counter, d, exp_counter, exp, flag, fgc) ::= <<
 ;generator
-; range
-%<var><gc> = alloca %struct.vecType*, align 8
+%<var><fgc> = alloca %struct.vecType*, align 8
 <d>
-store %struct.vecType* %<d_counter>, %struct.vecType** %<var><gc>
+store %struct.vecType* %<d_counter>, %struct.vecType** %<var><fgc>
 <exp>
 
 <flag>%<counter> = alloca %struct.vecType, align 8
@@ -1465,6 +1464,70 @@ store %struct.vecType* %<d_counter>, %struct.vecType** %<var><gc>
 <flag>call void @.extendInt(i32 %<exp_counter>, i32 %sgt<counter>, %struct.vecType* %<counter>)
 
 >>
+
+
+filter(counter, var, d_counter, d, exp_counter, exp, fgc) ::= <<
+;filter
+<d>
+%<var><fgc> = alloca i32, align 4
+%fnptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
+%fsptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 1
+%fn<counter> = load i32* %fnptr<counter>, align 4
+%fs<counter> = load i32* %fsptr<counter>, align 4
+%fs64<counter> = sext i32 %fs<counter> to i64
+%call<counter> = call noalias i8* @calloc(i64 %fs64<counter>, i64 128)
+%ar<counter> = bitcast i8* %call<counter> to \<32 x i32\>*
+%lcp<counter> = alloca i32, align 4
+%ncp<counter> = alloca i32, align 4
+store i32 0, i32* %lcp<counter>, align 4
+store i32 0, i32* %ncp<counter>, align 4
+br label %filter<counter>.begin
+filter<counter>.begin:
+	%lc<counter> = load i32* %lcp<counter>, align 4
+	%cm<counter> = icmp slt i32 %lc<counter>, %fn<counter>
+	br i1 %cm<counter>, label %filter<counter>.loop, label %filter<counter>.done
+filter<counter>.loop:
+	%bn<counter> = udiv i32 %lc<counter>, 32
+	%ib<counter> = urem i32 %lc<counter>, 32
+	%ap<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 2
+	%as<counter> = load \<32 x i32\>** %ap<counter>
+	%aip<counter> = getelementptr inbounds \<32 x i32\>* %as<counter>, i32 %bn<counter>
+	%aa<counter> = load \<32 x i32\>* %aip<counter>
+	%v<counter> = extractelement \<32 x i32\> %aa<counter>, i32 %ib<counter>
+	store i32 %v<counter>, i32* %<var><fgc>, align 4
+	<exp>
+	%c2<counter> = icmp ugt i32 %<exp_counter>, 0
+	br i1 %c2<counter>, label %filter<counter>.add, label %filter<counter>.next
+filter<counter>.add:
+	%nc<counter> = load i32* %ncp<counter>, align 4
+	%abn<counter> = udiv i32 %nc<counter>, 32
+	%aib<counter> = urem i32 %nc<counter>, 32
+	%aaip<counter> = getelementptr inbounds \<32 x i32\>* %ar<counter>, i32 %abn<counter>
+	%aaa<counter> = load \<32 x i32\>* %aaip<counter>
+	%ins<counter> = insertelement \<32 x i32\> %aaa<counter>, i32 %v<counter>, i32 %aib<counter>
+	store \<32 x i32\> %ins<counter>, \<32 x i32\>* %aaip<counter>
+	%nnc<counter> = add i32 %nc<counter>, 1
+	store i32 %nnc<counter>, i32* %ncp<counter>, align 4
+	br label %filter<counter>.next
+filter<counter>.next:
+	%nlc<counter> = add i32 %lc<counter>, 1
+	store i32 %nlc<counter>, i32* %lcp<counter>, align 4
+	br label %filter<counter>.begin
+filter<counter>.done:
+	%<counter> = alloca %struct.vecType, align 8
+	%nfnptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 0
+	%nfsptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 1
+	%ndptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 2
+	store i32 %nnc<counter>, i32* %nfnptr<counter>, align 4
+	%nnca<counter> = add i32 %nnc<counter>, 1
+	%nfsa<counter> = udiv i32 %nnca<counter>, 32
+	%nfs<counter> = add i32 %nfsa<counter>, 1
+	store i32 %nfs<counter>, i32* %nfsptr<counter>, align 4
+	store \<32 x i32\>* %ar<counter>, \<32 x i32\>** %ndptr<counter>, align 8
+
+
+>>
+
 
 varnumInt(counter, name, varcounter) ::= <<
 ;varnumInt
