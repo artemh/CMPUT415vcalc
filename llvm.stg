@@ -1121,7 +1121,7 @@ addIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 1)
+%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.addVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1206,15 +1206,7 @@ divVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %lp<counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %r<counter> = load i32* %rp<counter>, align 4
 %l<counter> = load i32* %lp<counter>, align 4
-%dcmp<counter> = icmp ult i32 %l<counter>, %r<counter>
-br i1 %dcmp<counter>, label %div.zero<counter>, label %div.one<counter>
-div.zero<counter>:
-%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
-br label %div.done<counter>
-div.one<counter>:
 %smSize2<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 1)
-br label %div.done<counter>
-div.done<counter>:
 %<counter> = alloca %struct.vecType, align 8
 call void @.divVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
