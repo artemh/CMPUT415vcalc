@@ -1336,7 +1336,7 @@ generator(counter, var, d_counter, d, exp_counter, exp, flag, gc) ::= <<
 store %struct.vecType* %<d_counter>, %struct.vecType** %<var><gc>
 <exp>
 
-%<counter> = alloca %struct.vecType, align 8
+<flag>%<counter> = alloca %struct.vecType, align 8
 <flag>%sgptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
 <flag>%sgt<counter> = load i32* %sgptr<counter>, align 4
 <flag>call void @.extendInt(i32 %<exp_counter>, i32 %sgt<counter>, %struct.vecType* %<counter>)
