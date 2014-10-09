@@ -1520,9 +1520,9 @@ filter<counter>.loop:
 	%bn<counter> = udiv i32 %lc<counter>, 32
 	%ib<counter> = urem i32 %lc<counter>, 32
 	%ap<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 2
-	%as<counter> = load \<32 x i32\>** %ap<counter>
+	%as<counter> = load \<32 x i32\>** %ap<counter>, align 8
 	%aip<counter> = getelementptr inbounds \<32 x i32\>* %as<counter>, i32 %bn<counter>
-	%aa<counter> = load \<32 x i32\>* %aip<counter>
+	%aa<counter> = load \<32 x i32\>* %aip<counter>, align 128
 	%v<counter> = extractelement \<32 x i32\> %aa<counter>, i32 %ib<counter>
 	store i32 %v<counter>, i32* %<var><fgc>, align 4
 	<exp>
@@ -1533,9 +1533,9 @@ filter<counter>.add:
 	%abn<counter> = udiv i32 %nc<counter>, 32
 	%aib<counter> = urem i32 %nc<counter>, 32
 	%aaip<counter> = getelementptr inbounds \<32 x i32\>* %ar<counter>, i32 %abn<counter>
-	%aaa<counter> = load \<32 x i32\>* %aaip<counter>
+	%aaa<counter> = load \<32 x i32\>* %aaip<counter>, align 128
 	%ins<counter> = insertelement \<32 x i32\> %aaa<counter>, i32 %v<counter>, i32 %aib<counter>
-	store \<32 x i32\> %ins<counter>, \<32 x i32\>* %aaip<counter>
+	store \<32 x i32\> %ins<counter>, \<32 x i32\>* %aaip<counter>, align 128
 	%nnc<counter> = add i32 %nc<counter>, 1
 	store i32 %nnc<counter>, i32* %ncp<counter>, align 4
 	br label %filter<counter>.next
