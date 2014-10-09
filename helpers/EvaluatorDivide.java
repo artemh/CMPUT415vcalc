@@ -54,7 +54,7 @@ public class EvaluatorDivide implements Evaluator {
 					result.add(i,lhsVec.get(i) / rhsInt);
 				}
 			} else {
-				// vec - vec
+				// vec / vec
 				ArrayList<Integer> lhsVec = (ArrayList<Integer>)lhs.evaluate();
 				ArrayList<Integer> rhsVec = (ArrayList<Integer>)rhs.evaluate();	
 				Integer lhsSize = lhsVec.size();
@@ -65,6 +65,11 @@ public class EvaluatorDivide implements Evaluator {
 				// Perform element-wise addition
 				for (int i = 0; i < smallerSize; i++) {
 					result.set(i, lhsVec.get(i) / rhsVec.get(i));
+				}
+				if (lhsSize.compareTo(rhsSize) < 0) {
+					for(int i = lhsSize; i < rhsSize; i++) {
+						result.set(i, 0);
+					}
 				}
 			}
 			

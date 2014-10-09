@@ -686,6 +686,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   pad.done:
   br i1 %flag, label %pad.denum, label %pad.done2
   pad.denum:
+  
   ; need to know rhs block num and size 
   %denum_num_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
   %denum_blk_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
