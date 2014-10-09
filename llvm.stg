@@ -351,7 +351,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   br i1 %compar2, label %pad.lhs, label %pad.rhs
   
   pad.lhs:
-  store i32 %rhsNum, i32* %smallerSizePtr, align 4
+  store i32 %lhsNum, i32* %smallerSizePtr, align 4
   
   ; need this because calloc expects i64
   %blocks64 = sext i32 %rhsSize to i64 
@@ -424,7 +424,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   br label %pad.done
   
   pad.rhs:
-  store i32 %lhsNum, i32* %smallerSizePtr, align 4
+  store i32 %rhsNum, i32* %smallerSizePtr, align 4
   ; need this because calloc expects i64
   %blocks64r = sext i32 %lhsSize to i64 
   ; allocate memory for the array
@@ -507,7 +507,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   %max_ind = mul i32 %denum_blk, 32
   ; loop from denum_num to max_ind and set all values to 1
   %denum_lc_ptr = alloca i32, align 4
-  store i32 %denum_num, i32* %denum_lc_ptr, align 4
+  ;store i32 %denum_num, i32* %denum_lc_ptr, align 4
   
   br label %denum.loop
   denum.loop:
@@ -792,7 +792,6 @@ addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.addVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
-%printer<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int.raw, i32 0, i32 0), i32 %smSize<counter>)
 
 >>
 
@@ -834,7 +833,7 @@ subIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 subVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.subVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -878,10 +877,10 @@ divVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %dcmp<counter> = icmp ule i32 %l<counter>, %r<counter>
 br i1 %dcmp<counter>, label %div.zero<counter>, label %div.one<counter>
 div.zero<counter>:
-call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 br label %div.done<counter>
 div.one<counter>:
-call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 1)
+%smSize2<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 1)
 br label %div.done<counter>
 div.done<counter>:
 %<counter> = alloca %struct.vecType, align 8
@@ -927,7 +926,7 @@ mulIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 mulVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
-call void @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.mulVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
