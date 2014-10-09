@@ -83,7 +83,7 @@ define void @.indexVec(%struct.vecType* %source, %struct.vecType* %index, %struc
     %indexBlkPtr = getelementptr inbounds %struct.vecType* %index, i32 0, i32 1
     %indexBlk = load i32* %indexBlkPtr, align 4
     ; need this because calloc expects i64
-    %blocks64 = sext i32 %indexBlk to i64
+    %blocks64 = zext i32 %indexBlk to i64
     ; allocate memory for the array
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
@@ -174,7 +174,7 @@ define void @.mulVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecTy
     %Size = load i32* %SizePtr, align 4
 
     ; need this because calloc expects i64
-    %blocks64 = sext i32 %Size to i64
+    %blocks64 = zext i32 %Size to i64
     ; allocate memory for the array
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
@@ -232,7 +232,7 @@ define void @.subVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecTy
     %Size = load i32* %SizePtr, align 4
 
     ; need this because calloc expects i64
-    %blocks64 = sext i32 %Size to i64
+    %blocks64 = zext i32 %Size to i64
     ; allocate memory for the array
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
@@ -290,7 +290,7 @@ define void @.divVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecTy
     %Size = load i32* %SizePtr, align 4
 
     ; need this because calloc expects i64
-    %blocks64 = sext i32 %Size to i64
+    %blocks64 = zext i32 %Size to i64
     ; allocate memory for the array
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
@@ -349,7 +349,7 @@ define void @.addVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecTy
     %Size = load i32* %SizePtr, align 4
 
     ; need this because calloc expects i64
-    %blocks64 = sext i32 %Size to i64
+    %blocks64 = zext i32 %Size to i64
     ; allocate memory for the array
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
@@ -409,7 +409,7 @@ define void @.lessVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecT
     %Size = load i32* %SizePtr, align 4
 
     ; need this because calloc expects i64
-    %blocks64 = sext i32 %Size to i64
+    %blocks64 = zext i32 %Size to i64
     ; allocate memory for the array
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
@@ -490,7 +490,7 @@ define void @.equalsVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.ve
     %Size = load i32* %SizePtr, align 4
 
     ; need this because calloc expects i64
-    %blocks64 = sext i32 %Size to i64
+    %blocks64 = zext i32 %Size to i64
     ; allocate memory for the array
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
@@ -570,7 +570,7 @@ define void @.flip(%struct.vecType* %source, %struct.vecType* %result) nounwind 
     %Size = load i32* %SizePtr, align 4
 
     ; need this because calloc expects i64
-    %blocks64 = sext i32 %Size to i64
+    %blocks64 = zext i32 %Size to i64
     ; allocate memory for the array
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
@@ -657,7 +657,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   pad.lhs:
     store i32 %lhsNum, i32* %smallerSizePtr, align 4
     store i32 %rhsNum, i32* %largerSizePtr, align 4
-    %blocks64 = sext i32 %rhsSize to i64
+    %blocks64 = zext i32 %rhsSize to i64
     %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
     %array = bitcast i8* %call to \<32 x i32\>*
 
@@ -699,7 +699,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
 
   pad.rhs.zero:
     store i32 %rhsNum, i32* %smallerSizePtr, align 4
-    %blocks64r = sext i32 %lhsSize to i64
+    %blocks64r = zext i32 %lhsSize to i64
     %callr = call noalias i8* @calloc(i64 %blocks64r, i64 128)
     %arrayr = bitcast i8* %callr to \<32 x i32\>*
 
@@ -741,7 +741,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
     %largerSize = load i32* %largerSizePtr, align 4
     %blocksr32 = udiv i32 %largerSize, 32
     %blocksr321 = add i32 %blocksr32, 1
-    %blocks64r1 = sext i32 %blocksr321 to i64
+    %blocks64r1 = zext i32 %blocksr321 to i64
     %callr1 = call noalias i8* @calloc(i64 %blocks64r1, i64 128)
     %arrayr1 = bitcast i8* %callr1 to \<32 x i32\>*
     %denum_num_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
@@ -1056,7 +1056,7 @@ eqIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp eq i32 %<lhs_counter>, %<rhs_counter>
-%<counter> = sext i1 %pre<counter> to i32
+%<counter> = zext i1 %pre<counter> to i32
 
 >>
 
@@ -1103,7 +1103,7 @@ neIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ne i32 %<lhs_counter>, %<rhs_counter>
-%<counter> = sext i1 %pre<counter> to i32
+%<counter> = zext i1 %pre<counter> to i32
 
 >>
 
@@ -1157,7 +1157,7 @@ ltIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
-%<counter> = sext i1 %pre<counter> to i32
+%<counter> = zext i1 %pre<counter> to i32
 
 >>
 
@@ -1204,7 +1204,7 @@ gtIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ugt i32 %<lhs_counter>, %<rhs_counter>
-%<counter> = sext i1 %pre<counter> to i32
+%<counter> = zext i1 %pre<counter> to i32
 
 >>
 
@@ -1504,7 +1504,7 @@ filter(counter, var, d_counter, d, exp_counter, exp, fgc) ::= <<
 %domainNum<counter> = load i32* %domainNumPtr<counter>
 %domainBlk<counter> = load i32* %domainBlkPtr<counter>
 
-%block64<counter> = sext i32 %domainBlk<counter> to i64
+%block64<counter> = zext i32 %domainBlk<counter> to i64
 %call<counter> = call noalias i8* @calloc(i64 %block64<counter>, i64 128)
 %array<counter> = bitcast i8* %call<counter> to \<32 x i32\>*
 
