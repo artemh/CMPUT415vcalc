@@ -1,10 +1,1 @@
-vector b = 1..5;
-vector c = 1..6;
-int a = 3;
-print(b);
-print(c);
-print(b==c);
-print(b!=c);
-print(a!=b);
-print(b!=a);
-
+print(1..32/1..32);
