@@ -26,6 +26,7 @@ options {
   int loopCounter = 0;
   int rangeCounter = 0;
   int counter = 0;
+  int fc = 0;
   int gc = 0;
 
   Type intType = new BuiltInTypeSymbol("int");
@@ -270,17 +271,17 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
       Boolean flag = false;
       int varcounter = 0;
       Symbol symbol = currentScope.resolve($VARNUM.text);
+      if (symbol.value != null) {
+        int value = (Integer)symbol.value;
+        if (value != 0) {
+          flag = true;
+          varcounter = value;
+        }
+      }
       if (symbol.getType().equals(intType)) {
         $tsym = intType;
       } else if (symbol.getType().equals(vecType)) {
         $tsym = vecType;
-        if (symbol.value != null) {
-          int value = (Integer)symbol.value;
-          if (value != 0) {
-            flag = true;
-            varcounter = value;
-          }
-        }
       } else {
         throw new RuntimeException("Invalid type");
       }
@@ -289,6 +290,7 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
     }
     -> {symbol.getType().equals(vecType) && flag}? varnumVec(counter = {$c}, name = {name}, varcounter = {varcounter})
     -> {symbol.getType().equals(vecType)}? varnumVec(counter = {$c}, name = {name})
+    -> {flag}? varnumInt(counter = {$c}, name = {name}, varcounter = {varcounter})
     -> varnumInt(counter = {$c}, name = {name})
   | INTEGER
     {
@@ -327,7 +329,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(FILT VARNUM {currentScope.define(new VarSymbol($VARNUM.text, vecType, 0));} op1=expression op2=expression)
+  : ^(FILT VARNUM { fc++; currentScope.define(new VarSymbol($VARNUM.text, intType, fc)); } op1=expression op2=expression)
   ;
 
 generator returns [int c]
@@ -337,7 +339,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(GEN VARNUM { gc++; currentScope.define(new VarSymbol($VARNUM.text, vecType, gc));} op1=expression op2=expression)
+  : ^(GEN VARNUM { gc++; currentScope.define(new VarSymbol($VARNUM.text, vecType, gc)); } op1=expression op2=expression)
   {
     counter++;
     $c = counter;

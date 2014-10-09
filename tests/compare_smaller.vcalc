@@ -1,4 +1,6 @@
 vector a = [i in 1..4 | 0];
-vector b = [i in 1..4 | i*i*i*i];
+vector b = [i in 1..4 | i*i*i];
+vector c = [i in b | i*i*i];
 print(a);
 print(b);
+print(c);

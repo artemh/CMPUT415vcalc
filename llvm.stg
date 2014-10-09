@@ -1344,9 +1344,9 @@ store %struct.vecType* %<d_counter>, %struct.vecType** %<var><gc>
 >>
 
 
-varnumInt(counter, name) ::= <<
+varnumInt(counter, name, varcounter) ::= <<
 ;varnumInt
-%<counter> = load i32* <name>
+%<counter> = load i32* <name><varcounter>
 >>
 
 varnumVec(counter, name, varcounter) ::= <<
