@@ -1495,70 +1495,76 @@ store %struct.vecType* %<d_counter>, %struct.vecType** %<var><fgc>
 
 >>
 
-
 filter(counter, var, d_counter, d, exp_counter, exp, fgc) ::= <<
-;filter
 <d>
-%<var><fgc> = alloca i32, align 4
-%fnptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
-%fsptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 1
-%fn<counter> = load i32* %fnptr<counter>, align 4
-%fs<counter> = load i32* %fsptr<counter>, align 4
-%fs64<counter> = sext i32 %fs<counter> to i64
-%call<counter> = call noalias i8* @calloc(i64 %fs64<counter>, i64 128)
-%ar<counter> = bitcast i8* %call<counter> to \<32 x i32\>*
-%lcp<counter> = alloca i32, align 4
-%ncp<counter> = alloca i32, align 4
-store i32 0, i32* %lcp<counter>, align 4
-store i32 0, i32* %ncp<counter>, align 4
+%<var><fgc> = alloca i32
+%domainNumPtr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
+%domainBlkPtr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 1
+%domainNum<counter> = load i32* %domainNumPtr<counter>
+%domainBlk<counter> = load i32* %domainBlkPtr<counter>
+
+%block64<counter> = sext i32 %domainBlk<counter> to i64
+%call<counter> = call noalias i8* @calloc(i64 %block64<counter>, i64 128)
+%array<counter> = bitcast i8* %call<counter> to \<32 x i32\>*
+
+%lc_ptr<counter> = alloca i32
+%nc_ptr<counter> = alloca i32
+store i32 0, i32* %lc_ptr<counter>
+store i32 0, i32* %nc_ptr<counter>
+
 br label %filter<counter>.begin
+
 filter<counter>.begin:
-	%lc<counter> = load i32* %lcp<counter>, align 4
-	%cm<counter> = icmp ule i32 %lc<counter>, %fn<counter>
-	br i1 %cm<counter>, label %filter<counter>.loop, label %filter<counter>.done
+    %lc<counter> = load i32* %lc_ptr<counter>
+    %compar<counter> = icmp ule i32 %lc<counter>, %domainNum<counter>
+    br i1 %compar<counter>, label %filter<counter>.loop, label %filter<counter>.done
+    
 filter<counter>.loop:
-	%bn<counter> = udiv i32 %lc<counter>, 32
-	%ib<counter> = urem i32 %lc<counter>, 32
-	%ap<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 2
-	%as<counter> = load \<32 x i32\>** %ap<counter>, align 8
-	%aip<counter> = getelementptr inbounds \<32 x i32\>* %as<counter>, i32 %bn<counter>
-	%aa<counter> = load \<32 x i32\>* %aip<counter>, align 128
-	%v<counter> = extractelement \<32 x i32\> %aa<counter>, i32 %ib<counter>
-	store i32 %v<counter>, i32* %<var><fgc>, align 4
-	<exp>
-	%c2<counter> = icmp ugt i32 %<exp_counter>, 0
-	br i1 %c2<counter>, label %filter<counter>.add, label %filter<counter>.next
+    %block_num<counter> = udiv i32 %lc<counter>, 32
+    %block_index<counter> = urem i32 %lc<counter>, 32
+    %arr_ptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 2
+    %array_list<counter> = load \<32 x i32\>** %arr_ptr<counter>
+    %arrayidx<counter> = getelementptr inbounds \<32 x i32\>* %array_list<counter>, i32 %block_num<counter>
+    
+    %aa<counter> = load \<32 x i32\>* %arrayidx<counter>
+    %value<counter> = extractelement \<32 x i32\> %aa<counter>, i32 %block_index<counter>
+    store i32 %value<counter>, i32* %<var><fgc>
+    <exp>
+    %compar2<counter> = icmp ne i32 %<exp_counter>, 0
+    br i1 %compar2<counter>, label %filter<counter>.add, label %filter<counter>.next
+
 filter<counter>.add:
-	%nc<counter> = load i32* %ncp<counter>, align 4
-	%abn<counter> = udiv i32 %nc<counter>, 32
-	%aib<counter> = urem i32 %nc<counter>, 32
-	%aaip<counter> = getelementptr inbounds \<32 x i32\>* %ar<counter>, i32 %abn<counter>
-	%aaa<counter> = load \<32 x i32\>* %aaip<counter>, align 128
-	%ins<counter> = insertelement \<32 x i32\> %aaa<counter>, i32 %v<counter>, i32 %aib<counter>
-	store \<32 x i32\> %ins<counter>, \<32 x i32\>* %aaip<counter>, align 128
-	%nnc<counter> = add i32 %nc<counter>, 1
-	store i32 %nnc<counter>, i32* %ncp<counter>, align 4
-	br label %filter<counter>.next
-filter<counter>.next:
-	%nlc<counter> = add i32 %lc<counter>, 1
-	store i32 %nlc<counter>, i32* %lcp<counter>, align 4
-	br label %filter<counter>.begin
+    %nc<counter> = load i32* %nc_ptr<counter>
+    %array_block_num<counter> = udiv i32 %nc<counter>, 32
+    %array_block_index<counter> = urem i32 %nc<counter>, 32
+    %arrayidx2<counter> = getelementptr inbounds \<32 x i32\>* %array<counter>, i32 %array_block_num<counter>
+    %aa2<counter> = load \<32 x i32\>* %arrayidx2<counter>
+    %insert<counter> = insertelement \<32 x i32\> %aa2<counter>, i32 %value<counter>, i32 %array_block_index<counter>
+    store \<32 x i32\> %insert<counter>, \<32 x i32\>* %arrayidx2<counter>
+    %new_nc<counter> = add i32 %nc<counter>, 1
+    store i32 %new_nc<counter>, i32* %nc_ptr<counter>
+    br label %filter<counter>.next
+    
+filter<counter>.next:   
+    %new_lc<counter> = add i32 %lc<counter>, 1
+    store i32 %new_lc<counter>, i32* %lc_ptr<counter>
+    br label %filter<counter>.begin
+
 filter<counter>.done:
-	%<counter> = alloca %struct.vecType, align 8
-	%nfnptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 0
-	%nfsptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 1
-	%ndptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 2
-	%resultingsize<counter> = sub i32 %nnc<counter>, 1
-	store i32 %resultingsize<counter>, i32* %nfnptr<counter>, align 4
-	%nnca<counter> = add i32 %nnc<counter>, 1
-	%nfsa<counter> = udiv i32 %nnca<counter>, 32
-	%nfs<counter> = add i32 %nfsa<counter>, 1
-	store i32 %nfs<counter>, i32* %nfsptr<counter>, align 4
-	store \<32 x i32\>* %ar<counter>, \<32 x i32\>** %ndptr<counter>, align 8
-
-
+    %<counter> = alloca %struct.vecType
+    %finalnc<counter> = load i32* %nc_ptr<counter>
+    %res_num_ptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 0
+    %res_blk_ptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 1
+    %res_data_ptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 2
+    %resultingsize<counter> = sub i32 %finalnc<counter>, 1
+    store i32 %resultingsize<counter>, i32* %res_num_ptr<counter>
+    
+    %res_num_blk_t<counter> = udiv i32 %resultingsize<counter>, 32
+    %res_num_blk<counter> = add i32 %res_num_blk_t<counter>, 1
+    
+    store i32 %res_num_blk<counter>, i32* %res_blk_ptr<counter>
+    store \<32 x i32\>* %array<counter>, \<32 x i32\>** %res_data_ptr<counter>
 >>
-
 
 varnumInt(counter, name, varcounter) ::= <<
 ;varnumInt
