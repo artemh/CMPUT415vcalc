@@ -1,4 +1,4 @@
-int a = 32;
+int a = 2;
 vector b = 1..5;
 print(a);
 print(b);
