@@ -264,6 +264,7 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
   | index
     {
       $tsym = $index.tsym;
+      $c = $index.c;
     } -> write(input = {$index.st})
   | VARNUM
     {
