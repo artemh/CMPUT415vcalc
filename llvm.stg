@@ -933,7 +933,6 @@ eqIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp eq i32 %<lhs_counter>, %<rhs_counter>
-%f<counter> = add i1 0, 0
 %<counter> = zext i1 %pre<counter> to i32
 
 >>
@@ -943,7 +942,6 @@ eqVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.equalsVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>, i32 %smSize<counter>)
 
@@ -958,7 +956,6 @@ eqVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
 call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.equalsVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %extended<rhs_counter>, %struct.vecType* %<counter>, i32 %size<lhs_counter>)
 
@@ -973,7 +970,6 @@ eqIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
 %size<rhs_counter> = load i32* %sizePtrLhs<rhs_counter>, align 4
 call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.equalsVec(%struct.vecType* %<rhs_counter>, %struct.vecType* %extended<lhs_counter>, %struct.vecType* %<counter>, i32 %size<rhs_counter>)
 
@@ -984,7 +980,6 @@ neIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ne i32 %<lhs_counter>, %<rhs_counter>
-%f<counter> = add i1 0, 0
 %<counter> = zext i1 %pre<counter> to i32
 
 >>
@@ -996,7 +991,6 @@ neVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %eq<counter> = alloca %struct.vecType, align 8
 call void @.equalsVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %eq<counter>, i32 %smSize<counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.flip(%struct.vecType* %eq<counter>, %struct.vecType* %<counter>)
 
@@ -1013,7 +1007,6 @@ neVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>)
 %eq<counter> = alloca %struct.vecType, align 8
 call void @.equalsVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %extended<rhs_counter>, %struct.vecType* %eq<counter>, i32 %size<lhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.flip(%struct.vecType* %eq<counter>, %struct.vecType* %<counter>)
 
@@ -1031,7 +1024,6 @@ neIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>)
 %eq<counter> = alloca %struct.vecType, align 8
 call void @.equalsVec(%struct.vecType* %<rhs_counter>, %struct.vecType* %extended<lhs_counter>, %struct.vecType* %eq<counter>, i32 %size<rhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.flip(%struct.vecType* %eq<counter>, %struct.vecType* %<counter>)
 
@@ -1042,7 +1034,6 @@ ltIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
-%f<counter> = add i1 0, 0
 %<counter> = zext i1 %pre<counter> to i32
 
 >>
@@ -1052,7 +1043,6 @@ ltVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.lessVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>, i32 %smSize<counter>)
 
@@ -1067,7 +1057,6 @@ ltVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
 call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.lessVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %extended<rhs_counter>, %struct.vecType* %<counter>, i32 %size<lhs_counter>)
 
@@ -1082,7 +1071,6 @@ ltIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
 %size<rhs_counter> = load i32* %sizePtrLhs<rhs_counter>, align 4
 call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.lessVec(%struct.vecType* %extended<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>, i32 %size<rhs_counter>)
 
@@ -1093,7 +1081,6 @@ gtIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ugt i32 %<lhs_counter>, %<rhs_counter>
-%f<counter> = add i1 0, 0
 %<counter> = zext i1 %pre<counter> to i32
 
 >>
@@ -1103,7 +1090,6 @@ gtVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.lessVec(%struct.vecType* %<rhs_counter>, %struct.vecType* %<lhs_counter>, %struct.vecType* %<counter>, i32 %smSize<counter>)
 
@@ -1118,7 +1104,6 @@ gtVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
 call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.lessVec(%struct.vecType* %extended<rhs_counter>, %struct.vecType* %<lhs_counter>, %struct.vecType* %<counter>, i32 %size<lhs_counter>)
 
@@ -1133,7 +1118,6 @@ gtIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
 %size<rhs_counter> = load i32* %sizePtrLhs<rhs_counter>, align 4
 call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.lessVec(%struct.vecType* %<rhs_counter>, %struct.vecType* %extended<lhs_counter>, %struct.vecType* %<counter>, i32 %size<rhs_counter>)
 
@@ -1143,7 +1127,6 @@ addIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 ;addIntInt
 <lhs>
 <rhs>
-%f<counter> = add i1 0, 0
 %<counter> = add i32 %<lhs_counter>, %<rhs_counter>
 
 >>
@@ -1153,7 +1136,6 @@ addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.addVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1168,7 +1150,6 @@ addVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
 call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.addVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %extended<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1183,7 +1164,6 @@ addIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
 %size<rhs_counter> = load i32* %sizePtrLhs<rhs_counter>, align 4
 call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.addVec(%struct.vecType* %<rhs_counter>, %struct.vecType* %extended<lhs_counter>, %struct.vecType* %<counter>)
 
@@ -1193,7 +1173,6 @@ subIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 ;subIntInt
 <lhs>
 <rhs>
-%f<counter> = add i1 0, 0
 %<counter> = sub i32 %<lhs_counter>, %<rhs_counter>
 
 >>
@@ -1203,7 +1182,6 @@ subVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.subVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1218,7 +1196,6 @@ subVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
 call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.subVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %extended<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1233,7 +1210,6 @@ subIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
 %size<rhs_counter> = load i32* %sizePtrLhs<rhs_counter>, align 4
 call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.subVec(%struct.vecType* %extended<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1248,7 +1224,6 @@ divVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %r<counter> = load i32* %rp<counter>, align 4
 %l<counter> = load i32* %lp<counter>, align 4
 %smSize2<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 1)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.divVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1263,7 +1238,6 @@ divVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
 call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.divVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %extended<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1278,7 +1252,6 @@ divIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
 %size<rhs_counter> = load i32* %sizePtrLhs<rhs_counter>, align 4
 call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.divVec(%struct.vecType* %extended<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1288,7 +1261,6 @@ mulIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 ;mulIntInt
 <lhs>
 <rhs>
-%f<counter> = add i1 0, 0
 %<counter> = mul i32 %<lhs_counter>, %<rhs_counter>
 
 >>
@@ -1298,7 +1270,6 @@ mulVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.mulVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1313,7 +1284,6 @@ mulVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
 call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.mulVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %extended<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1328,7 +1298,6 @@ mulIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %sizePtrLhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
 %size<rhs_counter> = load i32* %sizePtrLhs<rhs_counter>, align 4
 call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>)
-%f<counter> = add i1 1, 0
 %<counter> = alloca %struct.vecType, align 8
 call void @.mulVec(%struct.vecType* %extended<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1338,7 +1307,6 @@ divIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 ;divIntInt
 <lhs>
 <rhs>
-%f<counter> = add i1 0, 0
 %<counter> = udiv i32 %<lhs_counter>, %<rhs_counter>
 
 >>
@@ -1367,32 +1335,28 @@ generator(counter, var, d_counter, d, exp_counter, exp, flag, gc) ::= <<
 <d>
 store %struct.vecType* %<d_counter>, %struct.vecType** %<var><gc>
 <exp>
-br i1 %f<exp_counter>, label %gen<counter>.done, label %gen<counter>.pad
-gen<counter>.pad:
-    <flag>%<counter> = alloca %struct.vecType, align 8
-    <flag>%sgptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
-    <flag>%sgt<counter> = load i32* %sgptr<counter>, align 4
-    <flag>call void @.extendInt(i32 %<exp_counter>, i32 %sgt<counter>, %struct.vecType* %<counter>)
-    br label %gen<counter>.done
-gen<counter>.done:
+
+<exp>
+%<counter> = alloca %struct.vecType, align 8
+<flag>%sgptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
+<flag>%sgt<counter> = load i32* %sgptr<counter>, align 4
+<flag>call void @.extendInt(i32 %<exp_counter>, i32 %sgt<counter>, %struct.vecType* %<counter>)
+
 >>
 
 
 varnumInt(counter, name) ::= <<
 ;varnumInt
-%f<counter> = add i1 0, 0
 %<counter> = load i32* <name>
 >>
 
 varnumVec(counter, name, varcounter) ::= <<
 ;varnumVec
-%f<counter> = add i1 1, 0
 %<counter> = load %struct.vecType** <name><varcounter>
 >>
 
 integer(counter, value) ::= <<
 ;integer
-%f<counter> = add i1 0, 0
 %<counter> = add i32 <value>, 0
 >>
 
