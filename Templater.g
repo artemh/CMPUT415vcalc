@@ -250,17 +250,27 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
       varNamesList.add($VARNUM.text);  
       counter++;
       $c = counter;
+      Boolean flag = false;
+      int varcounter = 0;
       Symbol symbol = currentScope.resolve($VARNUM.text);
       if (symbol.getType().equals(intType)) {
         $tsym = intType;
       } else if (symbol.getType().equals(vecType)) {
         $tsym = vecType;
+        if (symbol.value != null) {
+          int value = (Integer)symbol.value;
+          if (value != 0) {
+            flag = true;
+            varcounter = value;
+          }
+        }
       } else {
         throw new RuntimeException("Invalid type");
       }
       String scope = symbol.scope.getScopeName();
       String name = resolveVar($VARNUM.text);
     }
+    -> {symbol.getType().equals(vecType) && flag}? varnumVec(counter = {$c}, name = {name}, varcounter = {varcounter})
     -> {symbol.getType().equals(vecType)}? varnumVec(counter = {$c}, name = {name})
     -> varnumInt(counter = {$c}, name = {name})
   | INTEGER
@@ -310,7 +320,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(GEN VARNUM {currentScope.define(new VarSymbol($VARNUM.text, vecType, 0));} op1=expression op2=expression) { counter++; $c = counter; }
+  : ^(GEN VARNUM { counter++; $c = counter; currentScope.define(new VarSymbol($VARNUM.text, vecType, counter));} op1=expression op2=expression)
   {
     boolean flag = false;
     ArrayList<String> list = $op2.varNames;

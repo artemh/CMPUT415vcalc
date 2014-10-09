@@ -1384,10 +1384,10 @@ varnumInt(counter, name) ::= <<
 %<counter> = load i32* <name>
 >>
 
-varnumVec(counter, name) ::= <<
+varnumVec(counter, name, varcounter) ::= <<
 ;varnumVec
 %f<counter> = add i1 1, 0
-%<counter> = load %struct.vecType** <name>
+%<counter> = load %struct.vecType** <name><varcounter>
 >>
 
 integer(counter, value) ::= <<
