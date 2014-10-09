@@ -27,8 +27,8 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
     store i32 0, i32* %lc_ptr, align 4
     store i32 0, i32* %offset_ptr, align 4
 
-    br label %print.for.range.begin
-    	print.for.range.begin:
+        br label %print.for.range.begin
+	print.for.range.begin:
     	%lc = load i32* %lc_ptr
     	%offset = load i32* %offset_ptr
     	%compar = icmp ugt i32 %lc, %print_num
@@ -53,6 +53,121 @@ define void @.printVec(%struct.vecType* %ptr) nounwind uwtable {
     	br label %print.for.range.begin
 	print.for.range.done:
 	ret void
+}
+
+define void @.indexInt(%struct.vecType* %source, i32 %index, i32* %dest) nounwind uwtable {
+    %sizePtr = getelementptr inbounds %struct.vecType* %source, i32 0, i32 0
+    %size = load i32* %sizePtr, align 4
+    ; get a pointer to the list of arrays
+    %ar_ptr = getelementptr inbounds %struct.vecType* %source, i32 0, i32 2
+    ; load the list of arrays
+    %array = load \<32 x i32\>** %ar_ptr, align 8
+    %block_num = udiv i32 %index, 32
+    ; need to figure out which index in that block the item is in
+    %index_block = urem i32 %index, 32
+    %arrayidx = getelementptr inbounds \<32 x i32\>* %array, i32 %block_num
+    %vector = load \<32 x i32\>* %arrayidx
+    %value = extractelement \<32 x i32\> %vector, i32 %index_block
+    
+    store i32 %value, i32* %dest, align 4
+    ret void
+}
+
+define void @.indexVec(%struct.vecType* %source, %struct.vecType* %index, %struct.vecType* %dest) nounwind uwtable {
+    %sourceSizePtr = getelementptr inbounds %struct.vecType* %source, i32 0, i32 0
+    %sourceSize = load i32* %sourceSizePtr, align 4
+    %indexSizePtr = getelementptr inbounds %struct.vecType* %index, i32 0, i32 0
+    %indexSize = load i32* %indexSizePtr, align 4
+    
+    ;Allocate memory
+    %indexBlkPtr = getelementptr inbounds %struct.vecType* %index, i32 0, i32 1
+    %indexBlk = load i32* %indexBlkPtr, align 4
+    ; need this because calloc expects i64
+    %blocks64 = sext i32 %indexBlk to i64
+    ; allocate memory for the array
+    %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
+    %array = bitcast i8* %call to \<32 x i32\>*
+    
+    %src_ar_ptr = getelementptr inbounds %struct.vecType* %source, i32 0, i32 2
+    %ind_ar_ptr = getelementptr inbounds %struct.vecType* %source, i32 0, i32 2
+
+    %src_array = load \<32 x i32\>** %src_ar_ptr, align 8
+    %ind_array = load \<32 x i32\>** %ind_ar_ptr, align 8
+    
+    ;set up the loop
+    %lc_ptr = alloca i32
+    store i32 0, i32* %lc_ptr, align 4
+    ;start the loop    
+    br label %indexvec.begin
+    indexvec.begin:
+        %lc = load i32* %lc_ptr
+        %compar = icmp ult i32 %lc, %indexSize
+        br i1 %compar, label %indexvec.next, label %indexvec.done
+        
+    indexvec.next:
+        ; do stuff
+        ; get the index element
+        ; need to figure out which block the item is in
+        %ind_block_num = udiv i32 %lc, 32
+        ; need to figure out which index in that block the item is in
+        %ind_index_block = urem i32 %lc, 32
+        %ind_arrayidx = getelementptr inbounds \<32 x i32\>* %ind_array, i32 %ind_block_num
+        %index_ar = load \<32 x i32\>* %ind_arrayidx
+        %index_value = extractelement \<32 x i32\> %index_ar, i32 %ind_index_block
+        
+        ; see if out of bounds
+        %lzero = icmp slt i32 %index_value, 0
+        br i1 %lzero, label %indexvec.zero, label %indexvec.next2
+        
+    indexvec.next2:
+        %gsize = icmp uge i32 %index_value, %sourceSize    
+        br i1 %gsize, label %indexvec.zero, label %indexvec.next3
+        
+    indexvec.next3:
+        ; not zero, get the value    
+        ; need to figure out which block the item is in
+        %src_block_num = udiv i32 %index_value, 32
+        ; need to figure out which index in that block the item is in
+        %src_index_block = urem i32 %index_value, 32
+        
+        %src_arrayidx = getelementptr inbounds \<32 x i32\>* %src_array, i32 %src_block_num
+        %src_ar = load \<32 x i32\>* %src_arrayidx
+        %src_value = extractelement \<32 x i32\> %src_ar, i32 %src_index_block
+        
+        %dest_arrayidx = getelementptr inbounds \<32 x i32\>* %array, i32 %ind_block_num
+        %dest_ar = load \<32 x i32\>* %dest_arrayidx
+        %insert_value = insertelement \<32 x i32\> %dest_ar, i32 %src_value, i32 %ind_index_block
+        store \<32 x i32\> %insert_value, \<32 x i32\>* %dest_arrayidx
+        br label %indexvec.step
+    indexvec.zero:    
+        ; set result to 0
+        %dest_arrayidx0 = getelementptr inbounds \<32 x i32\>* %array, i32 %ind_block_num
+        %dest_ar0 = load \<32 x i32\>* %dest_arrayidx0
+        %insert_zero = insertelement \<32 x i32\> %dest_ar0, i32 0, i32 %ind_index_block
+        store \<32 x i32\> %insert_zero, \<32 x i32\>* %dest_arrayidx
+        br label %indexvec.step
+    indexvec.step:    
+        %new_lc = add i32 %lc, 1
+        store i32 %new_lc, i32* %lc_ptr, align 4
+        br label %indexvec.begin
+        
+    indexvec.done:    
+    ;set the integer values
+    %indexNumPtr = getelementptr inbounds %struct.vecType* %index, i32 0, i32 0
+    %destNumPtr = getelementptr inbounds %struct.vecType* %dest, i32 0, i32 0
+    %indexNum = load i32* %indexNumPtr, align 4
+    store i32 %indexNum, i32* %destNumPtr, align 4
+    
+    %indexBlkPtr2 = getelementptr inbounds %struct.vecType* %index, i32 0, i32 1
+    %destBlkPtr = getelementptr inbounds %struct.vecType* %dest, i32 0, i32 1
+    %indexBlk2 = load i32* %indexBlkPtr2, align 4    
+    store i32 %indexBlk2, i32* %destBlkPtr, align 4
+    
+    ;set the array
+    %data = getelementptr inbounds %struct.vecType* %dest, i32 0, i32 2
+    store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
+    
+    ret void
 }
 
 define void @.mulVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecType* %result) nounwind uwtable {
