@@ -70,11 +70,13 @@ declaration
 
       if (type.equals(intType)) {
         container.inits.put($VARNUM.text, $exp.st);
-        container.intNames.add($VARNUM.text);
+        container.types.put($VARNUM.text, false);
+        container.names.add($VARNUM.text);
         container.counters.put($VARNUM.text, new Integer($exp.c));
       } else if (type.equals(vecType)) {
         container.inits.put($VARNUM.text, $exp.st);
-        container.vecNames.add($VARNUM.text);
+        container.types.put($VARNUM.text, true);
+        container.names.add($VARNUM.text);
         container.counters.put($VARNUM.text, new Integer($exp.c));
       } else {
         throw new RuntimeException("Invalid type " + type.getName());

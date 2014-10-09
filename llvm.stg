@@ -828,8 +828,8 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
 
 
 define i32 @main() nounwind uwtable {
-  <container.vecNames:{x|<initVec(name=(x), counters = container.counters, templates=container.inits)>}>
-  <container.intNames:{x|<initInt(name=(x), counters = container.counters, templates=container.inits)>}>
+  <container.names:{x|<init(name=(x), counters = container.counters, templates=container.inits, types=container.types)>}>
+  
   <stat:{s|<s>}>
 
   br label %quit.label
@@ -850,6 +850,14 @@ declInt(name) ::= <<
 declVec() ::= <<
 ;declVec
 @<name> = global %struct.vecType* null
+
+>>
+
+init(name, counters, templates, types) ::= <<
+;init
+<if(types.(name))> <initVec(name = name, counters = counters, templates = templates)>
+<else> <initInt(name = name, counters = counters, templates = templates)>
+<endif>
 
 >>
 
@@ -1342,7 +1350,6 @@ store %struct.vecType* %<d_counter>, %struct.vecType** %<var><gc>
 <flag>call void @.extendInt(i32 %<exp_counter>, i32 %sgt<counter>, %struct.vecType* %<counter>)
 
 >>
-
 
 varnumInt(counter, name, varcounter) ::= <<
 ;varnumInt
