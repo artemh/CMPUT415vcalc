@@ -9,27 +9,27 @@ options {
 
 @header {
 	import helpers.*;
-	
+
 	import java.util.ArrayList;
 	import java.util.HashMap;
 	import java.util.List;
 	import java.util.Map;
 }
 
-@members {	
+@members {
   SymbolTable symtab = new SymbolTable();
   Scope currentScope = symtab.globals;
-  
+
   InitContainer container = new InitContainer();
-  
+
   int ifCounter = 0;
   int loopCounter = 0;
   int rangeCounter = 0;
   int counter = 0;
-  
+
   Type intType = new BuiltInTypeSymbol("int");
   Type vecType = new BuiltInTypeSymbol("vector");
-  
+
   public Type exprType(Type lhs, Type rhs) {
      if (lhs.equals(vecType) || rhs.equals(vecType)) {
        return vecType;
@@ -37,7 +37,7 @@ options {
        return intType;
      }
   }
-  
+
   public String resolveVar(String v) {
     Symbol symbol = currentScope.resolve(v);
     String scope = symbol.scope.getScopeName();
@@ -54,7 +54,7 @@ program
     (stat+=statement)*
     -> program(container = {container}, decl = {$decl}, stat = {$stat})
   ;
-  
+
 declaration
   : ^(DECL type VARNUM exp=expression)
     {
@@ -62,11 +62,11 @@ declaration
       VarSymbol S = new VarSymbol($VARNUM.text, type);
       currentScope.define(S);
       Type exprType = $exp.tsym;
-      
+
   	  if (!exprType.equals(type)) {
-  	    throw new RuntimeException("Type Check error.");	
+  	    throw new RuntimeException("Type Check error.");
   	  }
-  	  
+
       if (type.equals(intType)) {
         container.inits.put($VARNUM.text, $exp.st);
         container.intNames.add($VARNUM.text);
@@ -84,10 +84,10 @@ declaration
   	-> declVec(name = {$VARNUM.text})
   	// Add expression template to vecInits
   ;
-  
+
 
 statement
-  : ^(IFSTAT exp=expression 
+  : ^(IFSTAT exp=expression
     {
       if (!($exp.tsym.equals(intType))) {
         throw new RuntimeException("Error: statement conditional must be an integer.");
@@ -97,7 +97,7 @@ statement
       ifCounter++;
       int localIfCounter = ifCounter;
     }
-     b=block) 
+     b=block)
     -> if(counter = {localCounter}, if_counter = {localIfCounter}, expr_counter = {$exp.c}, expr={$exp.st}, b={$b.st})
   | ^(LOOPSTAT exp=expression
     {
@@ -109,7 +109,7 @@ statement
       loopCounter++;
       int localLoopCounter = loopCounter;
     }
-     b=block) 
+     b=block)
     -> loop(counter = {localCounter}, loop_counter = {localLoopCounter}, expr_counter = {$exp.c}, expr={$exp.st}, b={$b.st})
   | ^(PRINTSTAT exp=expression)
     {
@@ -130,7 +130,7 @@ statement
     -> {$exp.tsym.equals(vecType)}? assignVec(name = {var}, expr_counter = {$exp.c}, expr = {$exp.st})
     -> assignInt(name = {var}, expr_counter = {$exp.c}, expr = {$exp.st})
   ;
-  
+
 block
   : ^(BLOCK s+=statement*)
     -> block(s = {$s})
@@ -243,7 +243,7 @@ expression returns [int c, Type tsym]
     {
       $tsym = $index.tsym;
     } -> write(input = {$index.st})
-  | VARNUM 
+  | VARNUM
     {
       counter++;
       $c = counter;
@@ -268,7 +268,7 @@ expression returns [int c, Type tsym]
     }
     -> integer(counter = {$c}, value = {Integer.parseInt($INTEGER.text)})
   ;
-  
+
 index returns [Type tsym]
 @init {
 	ArrayList<Type> indexTypes = new ArrayList<Type>();
@@ -279,18 +279,18 @@ index returns [Type tsym]
   	for (int i = 0; i < indexTypes.size(); i++) {
   		Type t = indexTypes.get(i);
   		if (t.equals(intType)) {
-  			if (i < indexTypes.size()-1) 
+  			if (i < indexTypes.size()-1)
   			{
   				throw new RuntimeException("Type check error. Only vectors can be indexed.");
   			}
-  			$tsym = intType; 
+  			$tsym = intType;
   			break;
   		}
   	}
   }
   ;
-  
-filter 
+
+filter
 @init {
 currentScope = new LocalScope(currentScope);
 }
@@ -299,7 +299,7 @@ currentScope = currentScope.getEnclosingScope();
 }
   : ^(FILT VARNUM {currentScope.define(new VarSymbol($VARNUM.text, vecType, 0));} op1=expression op2=expression)
   ;
-  
+
 generator returns [int c]
 @init {
 currentScope = new LocalScope(currentScope);
@@ -307,10 +307,10 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(GEN VARNUM {currentScope.define(new VarSymbol($VARNUM.text, vecType, 0));} op1=expression op2=expression) {$c = $op2.c;}
-    -> generator(var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp = {$op2.st})
+  : ^(GEN VARNUM {currentScope.define(new VarSymbol($VARNUM.text, vecType, 0));} op1=expression op2=expression) { counter++ }
+    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st})
   ;
-  
+
 type returns [Type tsym]
   : INT
       {$tsym = intType;}
