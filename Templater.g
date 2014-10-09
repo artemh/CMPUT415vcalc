@@ -339,12 +339,12 @@ currentScope = currentScope.getEnclosingScope();
 }
   : ^(GEN VARNUM { gc++; currentScope.define(new VarSymbol($VARNUM.text, vecType, gc));} op1=expression op2=expression)
   {
-    counter++;
+    
     $c = counter;
     boolean flag = false;
     ArrayList<String> list = $op2.varNames;
     for (String name : list) {
-        if(name.equals($VARNUM.text)) { flag = true; } 
+        if(name.equals($VARNUM.text)) { flag = true; counter++;} 
     }
   }
     -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"}, gc = {gc})

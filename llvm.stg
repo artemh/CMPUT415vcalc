@@ -1336,7 +1336,6 @@ generator(counter, var, d_counter, d, exp_counter, exp, flag, gc) ::= <<
 store %struct.vecType* %<d_counter>, %struct.vecType** %<var><gc>
 <exp>
 
-<exp>
 %<counter> = alloca %struct.vecType, align 8
 <flag>%sgptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
 <flag>%sgt<counter> = load i32* %sgptr<counter>, align 4
