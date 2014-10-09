@@ -352,8 +352,8 @@ currentScope = currentScope.getEnclosingScope();
       $c = counter;
     }
   }
-    -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"}, gc = {gc})
-    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {""}, gc = {gc})
+    -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"}, gc = {fgc})
+    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {""}, gc = {fgc})
   ;
 
 type returns [Type tsym]
