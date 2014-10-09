@@ -577,8 +577,8 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   pad.rhs:
     store i32 %rhsNum, i32* %smallerSizePtr, align 4
     %blocks64r = sext i32 %lhsSize to i64
-    %callr = call noalias i8* @calloc(i64 %blocks64, i64 128)
-    %arrayr = bitcast i8* %call to \<32 x i32\>*
+    %callr = call noalias i8* @calloc(i64 %blocks64r, i64 128)
+    %arrayr = bitcast i8* %callr to \<32 x i32\>*
     ; now loop over lhs_size number of elements and copy lhs elements
     %lc_ptrr = alloca i32
     store i32 0, i32* %lc_ptrr, align 4
@@ -586,7 +586,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   pad.rhs.begin:
     %lcr = load i32* %lc_ptrr
     %compar3r = icmp slt i32 %lcr, %rhsSize
-    br i1 %compar3r, label %pad.lhs.loop, label %pad.lhs.done
+    br i1 %compar3r, label %pad.rhs.loop, label %pad.rhs.done
   pad.rhs.loop:
     %ar_ptrr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
     %array_2r = load \<32 x i32\>** %ar_ptrr, align 8
@@ -606,6 +606,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
     %load1r = load i32* %lhsSizePtr, align 4
     store i32 %load1r, i32* %rhsSizePtr, align 4
     br label %pad.done
+    
   pad.done:
     br i1 %flag, label %pad.ones, label %pad.done.done
   pad.ones:   
@@ -642,7 +643,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
     store i32 %new_d_lc, i32* %d_lc_ptr, align 4
     br label %pad.ones.loop
   pad.ones.done:
-  
+
     br label %pad.done.done
   pad.done.done:
 	  %return = load i32* %smallerSizePtr, align 4
