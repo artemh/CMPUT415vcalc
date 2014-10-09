@@ -1,0 +1,3 @@
+int a = 7;
+vector b = 22..30;
+print(a/b);

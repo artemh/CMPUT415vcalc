@@ -1,0 +1,2 @@
+vector pool = 22.24[1..20][3][2..33];
+print(pool);
