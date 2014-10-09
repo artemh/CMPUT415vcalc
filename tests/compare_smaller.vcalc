@@ -1,3 +1,2 @@
-int a = 3;
-vector b = filter(i in 1..100 | i > 60);
-print(b);
+print(1..10 == 20..3000);
+print(15..67 != 0..2000);

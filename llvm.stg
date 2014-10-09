@@ -900,8 +900,7 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
     store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
     ; plug in the integer values
     %1 = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 0
-    %num_elem2 = add i32 %num_elem, 1
-    store i32 %num_elem2, i32* %1, align 4
+    store i32 %num_elem, i32* %1, align 4
     %2 = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 1
     store i32 %blocks, i32* %2, align 4
     ; need to loop over the array and set the values
@@ -1510,19 +1509,15 @@ filter(counter, var, d_counter, d, exp_counter, exp, fgc) ::= <<
 
 %lc_ptr<counter> = alloca i32
 %nc_ptr<counter> = alloca i32
-store i32 0, i32* %lc_ptr<counter>
-store i32 0, i32* %nc_ptr<counter>
+store i32 0, i32* %lc_ptr<counter>, align 4
+store i32 0, i32* %nc_ptr<counter>, align 4
 
 br label %filter<counter>.begin
 
 filter<counter>.begin:
     %lc<counter> = load i32* %lc_ptr<counter>
-    %compar<counter> = icmp ule i32 %lc<counter>, %domainNum<counter>
-    %comparprint1 = zext i1 %compar<counter> to i32
-    %asdfsfda = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.lbrack, i32 0, i32 0))
-    %asdfsafdsf = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.lbrack, i32 0, i32 0))
-    
-    %fprinter22 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %comparprint1)
+    %compar<counter> = icmp slt i32 %lc<counter>, %domainNum<counter>
+    %fprinter222 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %lc<counter>)
     br i1 %compar<counter>, label %filter<counter>.loop, label %filter<counter>.done
     
 filter<counter>.loop:
@@ -1536,11 +1531,8 @@ filter<counter>.loop:
     %value<counter> = extractelement \<32 x i32\> %aa<counter>, i32 %block_index<counter>
     store i32 %value<counter>, i32* %<var><fgc>
     <exp>
-    %compar2<counter> = icmp ne i32 %<exp_counter>, 0
-    %comparprint2 = zext i1 %compar2<counter> to i32
-    %asdfasfsafsa = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([3 x i8]* @.str.lbrack, i32 0, i32 0))
-    %fprinter222 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %comparprint2)
-    br i1 %compar2<counter>, label %filter<counter>.add, label %filter<counter>.next
+    %compar2<counter> = icmp eq i32 %<exp_counter>, 0
+    br i1 %compar2<counter>, label %filter<counter>.next, label %filter<counter>.add 
 
 filter<counter>.add:
     %nc<counter> = load i32* %nc_ptr<counter>
@@ -1555,7 +1547,8 @@ filter<counter>.add:
     br label %filter<counter>.next
     
 filter<counter>.next:   
-    %new_lc<counter> = add i32 %lc<counter>, 1
+    %lc_temp<counter> = load i32* %lc_ptr<counter>
+    %new_lc<counter> = add i32 %lc_temp<counter>, 1
     store i32 %new_lc<counter>, i32* %lc_ptr<counter>
     br label %filter<counter>.begin
 
