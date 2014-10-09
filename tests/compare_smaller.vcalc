@@ -1,2 +1,2 @@
-vector a = [i in 1..4 | i];
+vector a = [i in 1..4 | 0];
 print(a);
