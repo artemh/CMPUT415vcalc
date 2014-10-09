@@ -312,9 +312,10 @@ define void @.equalsVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.ve
     store i32 0, i32* %lc_ptr, align 4
 
     br label %eq.loop.begin
+    
     eq.loop.begin:
     %lc = load i32* %lc_ptr
-    %compar3 = icmp slt i32 %lc, %numOps
+    %compar3 = icmp sle i32 %lc, %numOps
     br i1 %compar3, label %eq.loop, label %eq.done
     
     eq.loop:
@@ -322,11 +323,44 @@ define void @.equalsVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.ve
     %ar_ptr_rhs = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
     %array_lhs = load \<32 x i32\>** %ar_ptr_lhs, align 8
     %array_rhs = load \<32 x i32\>** %ar_ptr_rhs, align 8
+    
     ; need to get block number which to load
     %blocknum = udiv i32 %lc, 32
     %index = urem i32 %lc, 32
     
+    ; need to compare indeces and set corresponding result element accordingly
+    %arrayidxl = getelementptr inbounds \<32 x i32\>* %array_lhs, i32 %blocknum
+    %arrayidxr = getelementptr inbounds \<32 x i32\>* %array_rhs, i32 %blocknum
+    %resultidx = getelementptr inbounds \<32 x i32\>* %array, i32 %blocknum
+    
+    %arl = load \<32 x i32\>* %arrayidxl
+    %arr = load \<32 x i32\>* %arrayidxr
+    %arres = load \<32 x i32\>* %resultidx
+
+    %valuel = extractelement \<32 x i32\> %arl, i32 %index
+    %valuer = extractelement \<32 x i32\> %arr, i32 %index
+    ; compare
+    %eqals = icmp eq i32 %valuel, %valuer
+    br i1 %eqals, label %eq.yes, label %eq.no
+    
+    eq.yes:
+    ; working with %arres, plug in the 1 into arres, plug the array back in
+    %insert1 = insertelement \<32 x i32\> %arres, i32 1, i32 %index
+    store \<32 x i32\> %insert1, \<32 x i32\>* %resultidx
+    br label %eq.next
+    
+    eq.no:
+    ; working with %arres, plug in the 0 into arres, plug the array back in
+    %insert0 = insertelement \<32 x i32\> %arres, i32 0, i32 %index
+    store \<32 x i32\> %insert0, \<32 x i32\>* %resultidx
+    br label %eq.next
+    eq.next:
+    
+    ;increment lc
+    %newlc = add i32 %lc, 1
+    store i32 %newlc, i32* %lc_ptr, align 4
     br label %eq.loop.begin
+    
     eq.done:
     ; plug in the array into the new struct
     %data = getelementptr inbounds %struct.vecType* %result, i32 0, i32 2
@@ -752,6 +786,15 @@ eqIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <rhs>
 %pre<counter> = icmp eq i32 %<lhs_counter>, %<rhs_counter>
 %<counter> = zext i1 %pre<counter> to i32
+
+>>
+
+eqVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+%<counter> = alloca %struct.vecType, align 8
+call void @.equalsVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>, i32 %smSize<counter>)
 
 >>
 
