@@ -606,7 +606,6 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
     %load1r = load i32* %lhsSizePtr, align 4
     store i32 %load1r, i32* %rhsSizePtr, align 4
     br label %pad.done
-    
   pad.done:
     br i1 %flag, label %pad.ones, label %pad.done.done
   pad.ones:   
@@ -649,7 +648,6 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
 	  %return = load i32* %smallerSizePtr, align 4
 	  ret i32 %return
 }  
-  
 
 define void @.extendInt(i32 %integer, i32 %size_i, %struct.vecType* %ptr) nounwind uwtable {
   %size = sub i32 %size_i, 1
@@ -1257,6 +1255,16 @@ range.invalid<rc>:
 	%rerror<rc> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([54 x i8]* @.str.rerror, i32 0, i32 0))
 	br label %quit.label
 range.done<rc>:
+
+>>
+
+generator(var, d_counter, d, exp) ::= <<
+; range
+%<var> = alloca %struct.vecType*, align 8
+<d>
+store %struct.vecType* %<d_counter>, %struct.vecType** %<var>
+<exp>
+; range
 
 >>
 
