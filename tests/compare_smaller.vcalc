@@ -1,3 +1,3 @@
 int a = 3;
-vector b = filter(i in 1..100 | i < 50);
+vector b = filter(i in 1..100 | i > 60);
 print(b);

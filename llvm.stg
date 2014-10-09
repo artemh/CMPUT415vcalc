@@ -1260,7 +1260,7 @@ addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 ;addVecVec
 <lhs>
 <rhs>
-;%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
 call void @.indexVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
@@ -1486,7 +1486,7 @@ store i32 0, i32* %ncp<counter>, align 4
 br label %filter<counter>.begin
 filter<counter>.begin:
 	%lc<counter> = load i32* %lcp<counter>, align 4
-	%cm<counter> = icmp slt i32 %lc<counter>, %fn<counter>
+	%cm<counter> = icmp ule i32 %lc<counter>, %fn<counter>
 	br i1 %cm<counter>, label %filter<counter>.loop, label %filter<counter>.done
 filter<counter>.loop:
 	%bn<counter> = udiv i32 %lc<counter>, 32
@@ -1520,7 +1520,8 @@ filter<counter>.done:
 	%nfnptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 0
 	%nfsptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 1
 	%ndptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 2
-	store i32 %nnc<counter>, i32* %nfnptr<counter>, align 4
+	%resultingsize<counter> = sub i32 %nnc<counter>, 1
+	store i32 %resultingsize<counter>, i32* %nfnptr<counter>, align 4
 	%nnca<counter> = add i32 %nnc<counter>, 1
 	%nfsa<counter> = udiv i32 %nnca<counter>, 32
 	%nfs<counter> = add i32 %nfsa<counter>, 1
