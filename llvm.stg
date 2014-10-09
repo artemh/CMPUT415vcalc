@@ -1516,8 +1516,7 @@ br label %filter<counter>.begin
 
 filter<counter>.begin:
     %lc<counter> = load i32* %lc_ptr<counter>
-    %compar<counter> = icmp slt i32 %lc<counter>, %domainNum<counter>
-    %fprinter222 = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %lc<counter>)
+    %compar<counter> = icmp sle i32 %lc<counter>, %domainNum<counter>
     br i1 %compar<counter>, label %filter<counter>.loop, label %filter<counter>.done
     
 filter<counter>.loop:
