@@ -136,7 +136,9 @@ block
     -> block(s = {$s})
   ;
 
-expression returns [int c, Type tsym, ArrayList<String> varNames = new ArrayList<String>();]
+expression returns [int c, Type tsym, ArrayList<String> varNames]
+@init { ArrayList<String> varNamesList = new ArrayList<String>(); }
+@after { $varNames = varNamesList; }
   : ^('==' lhs=expression rhs=expression)
     {
       counter++;
@@ -245,7 +247,7 @@ expression returns [int c, Type tsym, ArrayList<String> varNames = new ArrayList
     } -> write(input = {$index.st})
   | VARNUM
     {
-      varNames.add($VARNUM.text);  
+      varNamesList.add($VARNUM.text);  
       counter++;
       $c = counter;
       Symbol symbol = currentScope.resolve($VARNUM.text);
