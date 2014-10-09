@@ -344,7 +344,11 @@ currentScope = currentScope.getEnclosingScope();
     boolean flag = false;
     ArrayList<String> list = $op2.varNames;
     for (String name : list) {
-        if(name.equals($VARNUM.text)) { flag = true; counter--; $c = counter;} 
+        if(name.equals($VARNUM.text)) { flag = true; } 
+    }
+    if (flag == true) {
+      counter--;
+      $c = counter;
     }
   }
     -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"}, gc = {gc})

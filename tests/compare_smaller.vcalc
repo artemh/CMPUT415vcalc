@@ -1,2 +1,4 @@
 vector a = [i in 1..4 | 0];
+vector b = [i in 1..4 | i*i*i*i];
 print(a);
+print(b);
