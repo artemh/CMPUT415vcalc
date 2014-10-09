@@ -326,7 +326,7 @@ index returns [Type tsym, int c]
   	}
   }
   -> {indexTypes.get(0).equals(vecType)}? indexVec(counter = {$c}, lhs_counter = {$e1.c}, lhs = {$e1.st}, rhs_counter = {$exp.c}, rhs = {$exp.st})
-  -> indexInt()
+  -> indexInt(counter = {$c}, lhs_counter = {$e1.c}, lhs = {$e1.st}, rhs_counter = {$exp.c}, rhs = {$exp.st})
   ;
 
 filter returns [int c]

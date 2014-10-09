@@ -1257,9 +1257,9 @@ addVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 ;addVecVec
 <lhs>
 <rhs>
-;%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
 %<counter> = alloca %struct.vecType, align 8
-call void @.indexVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
+call void @.addVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
 >>
 
@@ -1272,21 +1272,25 @@ indexVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %size<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
 %size<rhs_counter> = load i32* %sizePtrRhs<rhs_counter>, align 4
 %ind_compar<counter> = icmp ult i32 %size<lhs_counter>, %size<rhs_counter>
-br i1 %ind_compar<counter>, label %ind_vl<counter>, label %ind_vr<counter>
+br i1 %ind_compar<counter>, label %ind_vl<counter>, label %ind_do<counter>
 ind_vl<counter>:
 ;pad
 %smSizei<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
-br label %ind_do<counter>
-ind_vr<counter>:
-;nopad
 br label %ind_do<counter>
 ind_do<counter>:
 %<counter> = alloca %struct.vecType, align 8
 call void @.indexVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>)
 
+
 >>
 
-indexInt() ::= <<
+indexInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+;indexInt
+<lhs>
+<rhs>
+%ptr<counter> = alloca i32
+call void @.indexInt(%struct.vecType* %<lhs_counter>, i32 %<rhs_counter>, i32* %ptr<counter>)
+%<counter> = load i32* %ptr<counter>, align 4 
 
 >>
 
