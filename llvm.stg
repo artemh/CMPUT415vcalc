@@ -288,6 +288,86 @@ define void @.addVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecTy
     ret void
 }
 
+define void @.lessVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecType* %result, i32 %numOps) nounwind uwtable {
+    %numPtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
+    %num = load i32* %numPtr, align 4
+    %SizePtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
+    %Size = load i32* %SizePtr, align 4
+
+    ; need this because calloc expects i64
+    %blocks64 = sext i32 %Size to i64
+    ; allocate memory for the array
+    %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
+    %array = bitcast i8* %call to \<32 x i32\>*
+    
+    ; set integer values
+    %newNumPtr = getelementptr inbounds %struct.vecType* %result, i32 0, i32 0
+    store i32 %num, i32* %newNumPtr, align 4
+    %newBlockPtr = getelementptr inbounds %struct.vecType* %result, i32 0, i32 1
+    store i32 %Size, i32* %newBlockPtr, align 4
+    
+    ; now loop over number of elements and compare
+    %lc_ptr = alloca i32, align 4
+    store i32 0, i32* %lc_ptr, align 4
+
+    br label %eq.loop.begin
+    
+    eq.loop.begin:
+    %lc = load i32* %lc_ptr
+    %compar3 = icmp sle i32 %lc, %numOps
+    br i1 %compar3, label %eq.loop, label %eq.done
+    
+    eq.loop:
+    %ar_ptr_lhs = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
+    %ar_ptr_rhs = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
+    %array_lhs = load \<32 x i32\>** %ar_ptr_lhs, align 8
+    %array_rhs = load \<32 x i32\>** %ar_ptr_rhs, align 8
+    
+    ; need to get block number which to load
+    %blocknum = udiv i32 %lc, 32
+    %index = urem i32 %lc, 32
+    
+    ; need to compare indeces and set corresponding result element accordingly
+    %arrayidxl = getelementptr inbounds \<32 x i32\>* %array_lhs, i32 %blocknum
+    %arrayidxr = getelementptr inbounds \<32 x i32\>* %array_rhs, i32 %blocknum
+    %resultidx = getelementptr inbounds \<32 x i32\>* %array, i32 %blocknum
+    
+    %arl = load \<32 x i32\>* %arrayidxl
+    %arr = load \<32 x i32\>* %arrayidxr
+    %arres = load \<32 x i32\>* %resultidx
+
+    %valuel = extractelement \<32 x i32\> %arl, i32 %index
+    %valuer = extractelement \<32 x i32\> %arr, i32 %index
+    ; compare
+    %eqals = icmp slt i32 %valuel, %valuer
+    br i1 %eqals, label %eq.yes, label %eq.no
+    
+    eq.yes:
+    ; working with %arres, plug in the 1 into arres, plug the array back in
+    %insert1 = insertelement \<32 x i32\> %arres, i32 1, i32 %index
+    store \<32 x i32\> %insert1, \<32 x i32\>* %resultidx
+    br label %eq.next
+    
+    eq.no:
+    ; working with %arres, plug in the 0 into arres, plug the array back in
+    %insert0 = insertelement \<32 x i32\> %arres, i32 0, i32 %index
+    store \<32 x i32\> %insert0, \<32 x i32\>* %resultidx
+    br label %eq.next
+    eq.next:
+    
+    ;increment lc
+    %newlc = add i32 %lc, 1
+    store i32 %newlc, i32* %lc_ptr, align 4
+    br label %eq.loop.begin
+    
+    eq.done:
+    ; plug in the array into the new struct
+    %data = getelementptr inbounds %struct.vecType* %result, i32 0, i32 2
+    ; plug the array in
+    store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
+    ret void
+}
+
 
 define void @.equalsVec(%struct.vecType* %lhs, %struct.vecType* %rhs, %struct.vecType* %result, i32 %numOps) nounwind uwtable {
     %numPtr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
@@ -773,7 +853,7 @@ call void @.printVec(%struct.vecType* %<expr_counter>)
 
 printInt(counter, expr_counter, expr) ::= <<
 <expr>
-%<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 <expr_counter>)
+%<counter> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([4 x i8]* @.str.int, i32 0, i32 0), i32 %<expr_counter>)
 
 >>
 
@@ -839,6 +919,43 @@ ltIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <rhs>
 %pre<counter> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
 %<counter> = zext i1 %pre<counter> to i32
+
+>>
+
+ltVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
+%<counter> = alloca %struct.vecType, align 8
+call void @.lessVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, %struct.vecType* %<counter>, i32 %smSize<counter>)
+
+>>
+
+ltVecInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%extended<rhs_counter> = alloca %struct.vecType, align 8
+; get the lhs size
+%sizePtrLhs<lhs_counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
+%size_t<lhs_counter> = load i32* %sizePtrLhs<lhs_counter>, align 4
+%size<lhs_counter> = add i32 %size_t<lhs_counter>, 1
+call void @.extendInt(i32 %<rhs_counter>, i32 %size<lhs_counter>, %struct.vecType* %extended<rhs_counter>);
+%<counter> = alloca %struct.vecType, align 8
+call void @.lessVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %extended<rhs_counter>, %struct.vecType* %<counter>, i32 %size<lhs_counter>)
+
+>>
+
+ltIntVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
+<lhs>
+<rhs>
+%extended<lhs_counter> = alloca %struct.vecType, align 8
+; get the rhs size
+%sizePtrLhs<rhs_counter> = getelementptr inbounds %struct.vecType* %<rhs_counter>, i32 0, i32 0
+%size_t<rhs_counter> = load i32* %sizePtrLhs<rhs_counter>, align 4
+%size<rhs_counter> = add i32 %size_t<rhs_counter>, 1
+call void @.extendInt(i32 %<lhs_counter>, i32 %size<rhs_counter>, %struct.vecType* %extended<lhs_counter>);
+%<counter> = alloca %struct.vecType, align 8
+call void @.lessVec(%struct.vecType* %<rhs_counter>, %struct.vecType* %extended<lhs_counter>, %struct.vecType* %<counter>, i32 %size<rhs_counter>)
 
 >>
 
@@ -1046,9 +1163,6 @@ br i1 %<c1>, label %range.valid<rc>, label %range.invalid<rc>
 range.valid<rc>:
     %<c2> = alloca %struct.vecType, align 8
 	call void @.range(i32 %<lhs_counter>, i32 %<rhs_counter>, %struct.vecType* %<c2>)
-	;%newvector = alloca %struct.vecType, align 8
-	;call void @.padVec(%struct.vecType* %<c2>, %struct.vecType* %newvector, i1 0)
-	;call void @.extendInt(i32 1, i32 600, %struct.vecType* %<c2>);
 	br label %range.done<rc>
 range.invalid<rc>:
 	%rerror<rc> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([54 x i8]* @.str.rerror, i32 0, i32 0))
