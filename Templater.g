@@ -320,8 +320,10 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(GEN VARNUM { $c = counter; currentScope.define(new VarSymbol($VARNUM.text, vecType, counter));} op1=expression op2=expression)
+  : ^(GEN VARNUM { currentScope.define(new VarSymbol($VARNUM.text, vecType, counter));} op1=expression op2=expression)
   {
+    counter++;
+    $c = counter;
     boolean flag = false;
     ArrayList<String> list = $op2.varNames;
     for (String name : list) {
