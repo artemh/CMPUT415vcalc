@@ -26,8 +26,7 @@ options {
   int loopCounter = 0;
   int rangeCounter = 0;
   int counter = 0;
-  int fc = 0;
-  int gc = 0;
+  int fgc = 0;
 
   Type intType = new BuiltInTypeSymbol("int");
   Type vecType = new BuiltInTypeSymbol("vector");
@@ -329,7 +328,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(FILT VARNUM { fc++; currentScope.define(new VarSymbol($VARNUM.text, intType, fc)); } op1=expression op2=expression)
+  : ^(FILT VARNUM { fgc++; currentScope.define(new VarSymbol($VARNUM.text, intType, fgc)); } op1=expression op2=expression)
   ;
 
 generator returns [int c]
@@ -339,7 +338,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(GEN VARNUM { gc++; currentScope.define(new VarSymbol($VARNUM.text, vecType, gc)); } op1=expression op2=expression)
+  : ^(GEN VARNUM { fgc++; currentScope.define(new VarSymbol($VARNUM.text, vecType, fgc)); } op1=expression op2=expression)
   {
     counter++;
     $c = counter;
