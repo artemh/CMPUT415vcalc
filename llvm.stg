@@ -532,199 +532,124 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   %rhsNumPtr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
   %lhsNum = load i32* %lhsNumPtr, align 4
   %rhsNum = load i32* %rhsNumPtr, align 4
+  
   %smallerSizePtr = alloca i32
-
+  %denomSizePtr = alloca i32
+  store i32 %rhsNum, i32* %denomSizePtr, align 4
+  
   ; need to know which one is bigger
-  %compar2 = icmp slt i32 %lhsNum, %rhsNum
-  br i1 %compar2, label %pad.lhs, label %pad.rhs
+  %compar = icmp slt i32 %lhsNum, %rhsNum
+  br i1 %compar, label %pad.lhs, label %pad.rhs
 
   pad.lhs:
-  store i32 %lhsNum, i32* %smallerSizePtr, align 4
-
-  ; need this because calloc expects i64
-  %blocks64 = sext i32 %rhsSize to i64
-  ; allocate memory for the array
-  %call = call noalias i8* @calloc(i64 %blocks64, i64 128)
-  %array = bitcast i8* %call to \<32 x i32\>*
-
-  ; now loop over lhs_size number of elements and copy lhs elements
-  %lc_ptr = alloca i32
-  %offset_ptr = alloca i32
-  store i32 0, i32* %lc_ptr, align 4
-  store i32 0, i32* %offset_ptr, align 4
-
+		store i32 %lhsNum, i32* %smallerSizePtr, align 4
+		%blocks64 = sext i32 %rhsSize to i64
+		%call = call noalias i8* @calloc(i64 %blocks64, i64 128)
+		%array = bitcast i8* %call to \<32 x i32\>*
+		; now loop over lhs_size number of elements and copy lhs elements
+		%lc_ptr = alloca i32
+		store i32 0, i32* %lc_ptr, align 4
   br label %pad.lhs.begin
   pad.lhs.begin:
-  	%lc = load i32* %lc_ptr
-  	%compar3 = icmp slt i32 %lc, %lhsSize
-  	br i1 %compar3, label %pad.lhs.loop, label %pad.lhs.done
-
+		%lc = load i32* %lc_ptr
+		%compar3 = icmp slt i32 %lc, %lhsSize
+		br i1 %compar3, label %pad.lhs.loop, label %pad.lhs.done
   pad.lhs.loop:
-  	%ar_ptr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
-  	%array_2 = load \<32 x i32\>** %ar_ptr, align 8
-  	%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %lc
-  	%newarrayidx = getelementptr inbounds \<32 x i32\>* %array, i32 %lc
-  	%array_old = load \<32 x i32\>* %arrayidx, align 8
-  	store \<32 x i32\> %array_old, \<32 x i32\>* %newarrayidx
-
-  	%newlc = add i32 %lc, 1
-  	store i32 %newlc, i32* %lc_ptr, align 4
-  	br label %pad.lhs.begin
-
+		%ar_ptr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
+		%array_2 = load \<32 x i32\>** %ar_ptr, align 8
+		%arrayidx = getelementptr inbounds \<32 x i32\>* %array_2, i32 %lc
+		%newarrayidx = getelementptr inbounds \<32 x i32\>* %array, i32 %lc
+		%array_old = load \<32 x i32\>* %arrayidx, align 8
+		store \<32 x i32\> %array_old, \<32 x i32\>* %newarrayidx
+		%newlc = add i32 %lc, 1
+		store i32 %newlc, i32* %lc_ptr, align 4
+		br label %pad.lhs.begin   
   pad.lhs.done:
-  br i1 %flag, label %pad.lhs.ones, label %pad.lhs.done2
-	pad.lhs.ones:
-		%lhsbeginptr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
-		%lhsendptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
-		%lhsbegini = load i32* %lhsbeginptr
-		%lhsbegin = add i32 %lhsbegini, 1
-		%lhsend = load i32* %lhsendptr
-		%lhspadlc_ptr = alloca i32, align 4
-		store i32 %lhsbegin, i32* %lhspadlc_ptr
-		br label %pad.lhs.onesbegin
-	pad.lhs.onesbegin:
-		%lhspadlc = load i32* %lhspadlc_ptr
-  		%lhscmp = icmp sle i32 %lhspadlc, %lhsend
-  		br i1 %lhscmp, label %pad.lhs.onesloop, label %pad.lhs.done2
-	pad.lhs.onesloop:
-		%lhsblocknum = udiv i32 %lhspadlc, 32
-		%lhsindex = urem i32 %lhspadlc, 32
-		%lhsarrayptr = getelementptr inbounds \<32 x i32\>* %array, i32 %lhsblocknum
-		%lhsarray = load \<32 x i32\>* %lhsarrayptr
-		%lhsinsert = insertelement \<32 x i32\> %lhsarray, i32 1, i32 %lhsindex
-		store \<32 x i32\> %lhsinsert, \<32 x i32\>* %lhsarrayptr
-		%lhsnewlc = add i32 %lhspadlc, 1
-		store i32 %lhsnewlc, i32* %lhspadlc_ptr, align 4
-		br label %pad.lhs.onesbegin
-	pad.lhs.done2:
-  ; get array ptr
-  %data = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
-  ; plug the array in
-  store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
-  %rhs0 = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
-  %lhs0 = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
-  %load0 = load i32* %rhs0, align 4
-  store i32 %load0, i32* %lhs0, align 4
-  %rhs1 = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
-  %lhs1 = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
-  %load1 = load i32* %rhs1, align 4
-  store i32 %load1, i32* %lhs1, align 4
-  br label %pad.done
-
+    %data = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 2
+    store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
+    ; Set integer values
+	  %load0 = load i32* %rhsNumPtr, align 4
+	  store i32 %load0, i32* %lhsNumPtr, align 4
+	  %load1 = load i32* %rhsSizePtr, align 4
+	  store i32 %load1, i32* %lhsSizePtr, align 4
+	  br label %pad.done
+  
   pad.rhs:
-  store i32 %rhsNum, i32* %smallerSizePtr, align 4
-  ; need this because calloc expects i64
-  %blocks64r = sext i32 %lhsSize to i64
-  ; allocate memory for the array
-  %callr = call noalias i8* @calloc(i64 %blocks64r, i64 128)
-  %arrayr = bitcast i8* %callr to \<32 x i32\>*
-
-  ; now loop over lhs_size number of elements and copy lhs elements
-  %lc_ptrr = alloca i32
-  %offset_ptrr = alloca i32
-  store i32 0, i32* %lc_ptrr, align 4
-  store i32 0, i32* %offset_ptrr, align 4
-
-  br label %pad.rhs.begin
+    store i32 %rhsNum, i32* %smallerSizePtr, align 4
+    %blocks64r = sext i32 %lhsSize to i64
+    %callr = call noalias i8* @calloc(i64 %blocks64, i64 128)
+    %arrayr = bitcast i8* %call to \<32 x i32\>*
+    ; now loop over lhs_size number of elements and copy lhs elements
+    %lc_ptrr = alloca i32
+    store i32 0, i32* %lc_ptrr, align 4
+    br label %pad.rhs.begin
   pad.rhs.begin:
-  	%lcr = load i32* %lc_ptrr
-  	%compar3r = icmp slt i32 %lcr, %rhsSize
-  	br i1 %compar3r, label %pad.rhs.loop, label %pad.rhs.done
-
+    %lcr = load i32* %lc_ptrr
+    %compar3r = icmp slt i32 %lcr, %rhsSize
+    br i1 %compar3r, label %pad.lhs.loop, label %pad.lhs.done
   pad.rhs.loop:
-  	%ar_ptrr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
-  	%array_2r = load \<32 x i32\>** %ar_ptrr, align 8
-  	%arrayidxr = getelementptr inbounds \<32 x i32\>* %array_2r, i32 %lcr
-  	%newarrayidxr = getelementptr inbounds \<32 x i32\>* %arrayr, i32 %lcr
-  	%array_oldr = load \<32 x i32\>* %arrayidxr, align 8
-  	store \<32 x i32\> %array_oldr, \<32 x i32\>* %newarrayidxr
-
-  	%newlcr = add i32 %lcr, 1
-  	store i32 %newlcr, i32* %lc_ptrr, align 4
-  	br label %pad.rhs.begin
-
-  pad.rhs.done:
-  br i1 %flag, label %pad.rhs.ones, label %pad.rhs.done2
-	pad.rhs.ones:
-		%rhsbeginptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
-		%rhsendptr = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
-		%rhsbegini = load i32* %rhsbeginptr
-		%rhsbegin = add i32 %rhsbegini, 1
-		%rhsend = load i32* %rhsendptr
-		%rhspadlc_ptr = alloca i32, align 4
-		store i32 %rhsbegin, i32* %rhspadlc_ptr
-		br label %pad.rhs.onesbegin
-	pad.rhs.onesbegin:
-		%rhspadlc = load i32* %rhspadlc_ptr
-  		%rhscmp = icmp sle i32 %rhspadlc, %rhsend
-  		br i1 %rhscmp, label %pad.rhs.onesloop, label %pad.rhs.done2
-	pad.rhs.onesloop:
-		%rhsblocknum = udiv i32 %rhspadlc, 32
-		%rhsindex = urem i32 %rhspadlc, 32
-		%rhsarrayptr = getelementptr inbounds \<32 x i32\>* %arrayr, i32 %rhsblocknum
-		%rhsarray = load \<32 x i32\>* %rhsarrayptr
-		%rhsinsert = insertelement \<32 x i32\> %rhsarray, i32 1, i32 %rhsindex
-		store \<32 x i32\> %rhsinsert, \<32 x i32\>* %rhsarrayptr
-		%rhsnewlc = add i32 %rhspadlc, 1
-		store i32 %rhsnewlc, i32* %rhspadlc_ptr, align 4
-		br label %pad.rhs.onesbegin
-	pad.rhs.done2:
-  ; get array ptr
-  %datar = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
-  ; plug the array in
-  store \<32 x i32\>* %arrayr, \<32 x i32\>** %datar, align 8
-  %rhs0r = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
-  %lhs0r = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
-  %load0r = load i32* %lhs0r, align 4
-  store i32 %load0r, i32* %rhs1r, align 4
-  %rhs1r = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
-  %lhs1r = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
-  %load1r = load i32* %lhs1r, align 4
-  store i32 %load1r, i32* %rhs1r, align 4
-  br label %pad.done
-
+    %ar_ptrr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
+    %array_2r = load \<32 x i32\>** %ar_ptrr, align 8
+    %arrayidxr = getelementptr inbounds \<32 x i32\>* %array_2r, i32 %lcr
+    %newarrayidxr = getelementptr inbounds \<32 x i32\>* %arrayr, i32 %lcr
+    %array_oldr = load \<32 x i32\>* %arrayidxr, align 8
+    store \<32 x i32\> %array_oldr, \<32 x i32\>* %newarrayidxr
+    %newlcr = add i32 %lcr, 1
+    store i32 %newlcr, i32* %lc_ptrr, align 4
+    br label %pad.rhs.begin     
+  pad.rhs.done:  
+    %datar = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
+    store \<32 x i32\>* %arrayr, \<32 x i32\>** %datar, align 8
+    ; Set integer values
+    %load0r = load i32* %lhsNumPtr, align 4
+    store i32 %load0r, i32* %rhsNumPtr, align 4
+    %load1r = load i32* %lhsSizePtr, align 4
+    store i32 %load1r, i32* %rhsSizePtr, align 4
+    br label %pad.done
+    
   pad.done:
-  br i1 %flag, label %pad.denum, label %pad.done2
-  pad.denum:
-  ; need to know rhs block num and size
-
-  %denum_num_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
-  %denum_blk_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
-  %denum_num_init = load i32* %denum_num_ptr, align 4
-  %denum_num = urem i32 %denum_num_init, 32
-  %denum_blk_init = load i32* %denum_blk_ptr, align 4
-  %denum_blk = sub i32 %denum_blk_init, 1
-  ; need total number of integers allocated, i.e. blocks*32
-  %max_ind = add i32 31, 0
-  ; loop from denum_num to max_ind and set all values to 1
-  %denum_lc_ptr = alloca i32, align 4
-  store i32 %denum_num, i32* %denum_lc_ptr, align 4
-
-  br label %denum.loop
-  denum.loop:
-      %denum_lc = load i32* %denum_lc_ptr
-      %denumcmp = icmp ult i32 %denum_lc, %max_ind
-      br i1 %denumcmp, label %denum.begin, label %denum.done
-  denum.begin:
-		%denumdataptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
-		%denumdata = load \<32 x i32\>** %denumdataptr, align 8
-		%denumarrayptr = getelementptr inbounds \<32 x i32\>* %denumdata, i32 %denum_blk
-		%denumarray = load \<32 x i32\>* %denumarrayptr, align 8
-		%denuminsert = insertelement \<32 x i32\> %denumarray, i32 1, i32 %denum_lc
-		store \<32 x i32\> %denuminsert, \<32 x i32\>* %denumarrayptr
-		br label %denum.loop
-  	  ;increment the counter
-  	  %new_denum_lc = add i32 %denum_lc, 1
-  	  store i32 %new_denum_lc, i32* %denum_lc_ptr, align 4
-  	  br label %denum.loop
-
-  denum.done:
-  ; plug the padded denum back in
-  br label %pad.done2
-  pad.done2:
-  %smallerSize = load i32* %smallerSizePtr, align 4
-  ret i32 %smallerSize
-}
+    br i1 %flag, label %pad.ones, label %pad.done.done
+  pad.ones:   
+	  %denum_num_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
+	  %denum_blk_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
+	  %denum_num = load i32* %denum_num_ptr, align 4
+	  %denum_blk = load i32* %denum_blk_ptr, align 4
+	  
+	  %loopStarti = load i32* %denomSizePtr, align 4
+	  %loopStart = sub i32 %loopStarti, 1
+    %loopEnd = mul i32 %denum_blk, 32
+    
+    %d_lc_ptr = alloca i32, align 4
+    store i32 %loopStart, i32* %d_lc_ptr, align 4
+    
+    %denumdataptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 2
+    %denumdata = load \<32 x i32\>** %denumdataptr, align 8
+    
+    br label %pad.ones.loop
+  pad.ones.loop:
+    %d_lc = load i32* %d_lc_ptr
+    %dcmp = icmp ult i32 %d_lc, %loopEnd
+    br i1 %dcmp, label %pad.ones.next, label %pad.ones.done
+  pad.ones.next:
+    %dblock_index = udiv i32 %d_lc, 32
+    %delem_index = urem i32 %d_lc, 32
+    %denumarrayptr = getelementptr inbounds \<32 x i32\>* %denumdata, i32 %dblock_index
+    
+    %denumarray = load \<32 x i32\>* %denumarrayptr, align 8
+    %denuminsert = insertelement \<32 x i32\> %denumarray, i32 1, i32 %delem_index
+    store \<32 x i32\> %denuminsert, \<32 x i32\>* %denumarrayptr
+  
+    %new_d_lc = add i32 %d_lc, 1
+    store i32 %new_d_lc, i32* %d_lc_ptr, align 4
+    br label %pad.ones.loop
+  pad.ones.done:
+  
+    br label %pad.done.done
+  pad.done.done:
+	  %return = load i32* %smallerSizePtr, align 4
+	  ret i32 %return
+}  
+  
 
 define void @.extendInt(i32 %integer, i32 %size_i, %struct.vecType* %ptr) nounwind uwtable {
   %size = sub i32 %size_i, 1
@@ -1226,7 +1151,7 @@ divVecVec(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 %lp<counter> = getelementptr inbounds %struct.vecType* %<lhs_counter>, i32 0, i32 0
 %r<counter> = load i32* %rp<counter>, align 4
 %l<counter> = load i32* %lp<counter>, align 4
-%dcmp<counter> = icmp ule i32 %l<counter>, %r<counter>
+%dcmp<counter> = icmp ult i32 %l<counter>, %r<counter>
 br i1 %dcmp<counter>, label %div.zero<counter>, label %div.one<counter>
 div.zero<counter>:
 %smSize<counter> = call i32 @.padVec(%struct.vecType* %<lhs_counter>, %struct.vecType* %<rhs_counter>, i1 0)
