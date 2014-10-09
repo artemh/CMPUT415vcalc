@@ -676,7 +676,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   %rhs0r = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
   %lhs0r = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 0
   %load0r = load i32* %lhs0r, align 4
-  store i32 %load0r, i32* %rhs1r, align 4
+  store i32 %load0r, i32* %rhs0r, align 4
   %rhs1r = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
   %lhs1r = getelementptr inbounds %struct.vecType* %lhs, i32 0, i32 1
   %load1r = load i32* %lhs1r, align 4
@@ -691,7 +691,7 @@ define i32 @.padVec(%struct.vecType* %lhs, %struct.vecType* %rhs, i1 %flag) noun
   %denum_num_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 0
   %denum_blk_ptr = getelementptr inbounds %struct.vecType* %rhs, i32 0, i32 1
   %denum_num_init = load i32* %denum_num_ptr, align 4
-  %denum_num = urem i32 %denum_num_init, 32
+  %denum_num = add i32 19, 1
   %denum_blk_init = load i32* %denum_blk_ptr, align 4
   %denum_blk = sub i32 %denum_blk_init, 1
   ; need total number of integers allocated, i.e. blocks*32
@@ -1332,6 +1332,16 @@ range.invalid<rc>:
 	%rerror<rc> = call i32 (i8*, ...)* @printf(i8* getelementptr inbounds ([54 x i8]* @.str.rerror, i32 0, i32 0))
 	br label %quit.label
 range.done<rc>:
+
+>>
+
+generator(var, d_counter, d, exp) ::= <<
+; range
+%<var> = alloca %struct.vecType*, align 8
+<d>
+store %struct.vecType* %<d_counter>, %struct.vecType** %<var>
+<exp>
+; range
 
 >>
 

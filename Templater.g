@@ -233,6 +233,7 @@ expression returns [int c, Type tsym]
   | generator
     {
       $tsym = vecType;
+      $c = $generator.c;
     } -> write(input = {$generator.st})
   | filter
     {
@@ -290,11 +291,24 @@ index returns [Type tsym]
   ;
   
 filter 
-  : ^(FILT VARNUM op1=expression op2=expression)
+@init {
+currentScope = new LocalScope(currentScope);
+}
+@after {
+currentScope = currentScope.getEnclosingScope();
+}
+  : ^(FILT VARNUM {currentScope.define(new VarSymbol($VARNUM.text, vecType, 0));} op1=expression op2=expression)
   ;
   
-generator 
-  :^(GEN VARNUM op1=expression op2=expression)
+generator returns [int c]
+@init {
+currentScope = new LocalScope(currentScope);
+}
+@after {
+currentScope = currentScope.getEnclosingScope();
+}
+  : ^(GEN VARNUM {currentScope.define(new VarSymbol($VARNUM.text, vecType, 0));} op1=expression op2=expression) {$c = $op2.c;}
+    -> generator(var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp = {$op2.st})
   ;
   
 type returns [Type tsym]
