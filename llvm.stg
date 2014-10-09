@@ -1360,12 +1360,12 @@ range.done<rc>:
 
 >>
 
-generator(counter, var, d_counter, d, exp_counter, exp, flag) ::= <<
+generator(counter, var, d_counter, d, exp_counter, exp, flag, gc) ::= <<
 ;generator
 ; range
-%<var><counter> = alloca %struct.vecType*, align 8
+%<var><gc> = alloca %struct.vecType*, align 8
 <d>
-store %struct.vecType* %<d_counter>, %struct.vecType** %<var><counter>
+store %struct.vecType* %<d_counter>, %struct.vecType** %<var><gc>
 <exp>
 br i1 %f<exp_counter>, label %gen<counter>.done, label %gen<counter>.pad
 gen<counter>.pad:

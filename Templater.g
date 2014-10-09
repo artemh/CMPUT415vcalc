@@ -26,6 +26,7 @@ options {
   int loopCounter = 0;
   int rangeCounter = 0;
   int counter = 0;
+  int gc = 0;
 
   Type intType = new BuiltInTypeSymbol("int");
   Type vecType = new BuiltInTypeSymbol("vector");
@@ -320,7 +321,7 @@ currentScope = new LocalScope(currentScope);
 @after {
 currentScope = currentScope.getEnclosingScope();
 }
-  : ^(GEN VARNUM { currentScope.define(new VarSymbol($VARNUM.text, vecType, counter));} op1=expression op2=expression)
+  : ^(GEN VARNUM { gc++; currentScope.define(new VarSymbol($VARNUM.text, vecType, gc));} op1=expression op2=expression)
   {
     counter++;
     $c = counter;
@@ -330,8 +331,8 @@ currentScope = currentScope.getEnclosingScope();
         if(name.equals($VARNUM.text)) { flag = true; } 
     }
   }
-    -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"})
-    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {""})
+    -> {flag}? generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {";"}, gc = {gc})
+    -> generator(counter = {counter}, var = {$VARNUM.text}, d_counter = {$op1.c}, d = {$op1.st}, exp_counter = {$op2.c}, exp = {$op2.st}, flag = {""}, gc = {gc})
   ;
 
 type returns [Type tsym]

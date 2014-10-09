@@ -1,3 +1,6 @@
-vector a = [i in 1..4 | 0];
-vector b = [i in 1..3 | i];
-print(a==b);
+vector a = [i in 1..4 | i];
+vector b = [i in 1..4 | i];
+vector c = [i in 1..10 | i];	
+print(a);
+print(b);
+print(c);
