@@ -1,6 +1,9 @@
 int a = 2;
 vector b = 1..5;
+vector c = 2..6;
 print(a);
 print(b);
-print(a<b);
-print(b<a);
+print(a>b);
+print(b>a);
+print(b<c);
+print(c<b);
