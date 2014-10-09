@@ -144,6 +144,8 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
     {
       counter++;
       $c = counter;
+      for(String str:$lhs.varNames) {varNamesList.add(str);}
+      for(String str:$rhs.varNames) {varNamesList.add(str);}
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? eqVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -154,6 +156,8 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
 {
       counter++;
       $c = counter;
+      for(String str:$lhs.varNames) {varNamesList.add(str);}
+      for(String str:$rhs.varNames) {varNamesList.add(str);}
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? neVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -164,6 +168,8 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
 {
       counter++;
       $c = counter;
+      for(String str:$lhs.varNames) {varNamesList.add(str);}
+      for(String str:$rhs.varNames) {varNamesList.add(str);}
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? ltVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -174,6 +180,8 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
 {
       counter++;
       $c = counter;
+      for(String str:$lhs.varNames) {varNamesList.add(str);}
+      for(String str:$rhs.varNames) {varNamesList.add(str);}
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? gtVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -184,6 +192,8 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
     {
       counter++;
       $c = counter;
+      for(String str:$lhs.varNames) {varNamesList.add(str);}
+      for(String str:$rhs.varNames) {varNamesList.add(str);}
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? addVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -194,6 +204,8 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
     {
       counter++;
       $c = counter;
+      for(String str:$lhs.varNames) {varNamesList.add(str);}
+      for(String str:$rhs.varNames) {varNamesList.add(str);}
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? subVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -204,6 +216,8 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
     {
       counter++;
       $c = counter;
+      for(String str:$lhs.varNames) {varNamesList.add(str);}
+      for(String str:$rhs.varNames) {varNamesList.add(str);}
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? mulVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
@@ -214,6 +228,8 @@ expression returns [int c, Type tsym, ArrayList<String> varNames]
     {
       counter++;
       $c = counter;
+      for(String str:$lhs.varNames) {varNamesList.add(str);}
+      for(String str:$rhs.varNames) {varNamesList.add(str);}
       $tsym = exprType($lhs.tsym, $rhs.tsym);
     }
     -> {$lhs.tsym.equals(vecType) && $rhs.tsym.equals(vecType)}? divVecVec(counter = {counter}, lhs_counter = {$lhs.c}, lhs = {$lhs.st}, rhs_counter = {$rhs.c}, rhs = {$rhs.st})
