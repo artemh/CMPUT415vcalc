@@ -900,7 +900,8 @@ define void @.range(i32 %lbound, i32 %ubound, %struct.vecType* %ptr) nounwind uw
     store \<32 x i32\>* %array, \<32 x i32\>** %data, align 8
     ; plug in the integer values
     %1 = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 0
-    store i32 %num_elem, i32* %1, align 4
+    %num_elem2 = add i32 %num_elem, 1
+    store i32 %num_elem2, i32* %1, align 4
     %2 = getelementptr inbounds %struct.vecType* %ptr, i32 0, i32 1
     store i32 %blocks, i32* %2, align 4
     ; need to loop over the array and set the values
@@ -1055,7 +1056,7 @@ eqIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp eq i32 %<lhs_counter>, %<rhs_counter>
-%<counter> = zext i1 %pre<counter> to i32
+%<counter> = sext i1 %pre<counter> to i32
 
 >>
 
@@ -1102,7 +1103,7 @@ neIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ne i32 %<lhs_counter>, %<rhs_counter>
-%<counter> = zext i1 %pre<counter> to i32
+%<counter> = sext i1 %pre<counter> to i32
 
 >>
 
@@ -1156,7 +1157,7 @@ ltIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ult i32 %<lhs_counter>, %<rhs_counter>
-%<counter> = zext i1 %pre<counter> to i32
+%<counter> = sext i1 %pre<counter> to i32
 
 >>
 
@@ -1203,7 +1204,7 @@ gtIntInt(counter, lhs_counter, lhs, rhs_counter, rhs) ::= <<
 <lhs>
 <rhs>
 %pre<counter> = icmp ugt i32 %<lhs_counter>, %<rhs_counter>
-%<counter> = zext i1 %pre<counter> to i32
+%<counter> = sext i1 %pre<counter> to i32
 
 >>
 
@@ -1499,51 +1500,80 @@ store %struct.vecType* %<d_counter>, %struct.vecType** %<var><fgc>
 filter(counter, var, d_counter, d, exp_counter, exp, fgc) ::= <<
 ;filter
 <d>
+;domain variable
 %<var><fgc> = alloca i32, align 4
+;counter pointers
+%lcp<counter> = alloca i32, align 4
+%ncp<counter> = alloca i32, align 4
 %fnptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 0
 %fsptr<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 1
+;size of domain vector
 %fn<counter> = load i32* %fnptr<counter>, align 4
+;blocks of domain vector
 %fs<counter> = load i32* %fsptr<counter>, align 4
 %fs64<counter> = sext i32 %fs<counter> to i64
 %call<counter> = call noalias i8* @calloc(i64 %fs64<counter>, i64 128)
 %ar<counter> = bitcast i8* %call<counter> to \<32 x i32\>*
-%lcp<counter> = alloca i32, align 4
-%ncp<counter> = alloca i32, align 4
+;start counters with zero
+;counter of loop that loops over domain vector
 store i32 0, i32* %lcp<counter>, align 4
+;position of new vector we are building
 store i32 0, i32* %ncp<counter>, align 4
 br label %filter<counter>.begin
 filter<counter>.begin:
+	;load the loop counter
 	%lc<counter> = load i32* %lcp<counter>, align 4
+	;check if loop counter is less than or equal size of vector
 	%cm<counter> = icmp ule i32 %lc<counter>, %fn<counter>
 	br i1 %cm<counter>, label %filter<counter>.loop, label %filter<counter>.done
 filter<counter>.loop:
+	;current block
 	%bn<counter> = udiv i32 %lc<counter>, 32
+	;current index
 	%ib<counter> = urem i32 %lc<counter>, 32
+	;get pointer to arrays
 	%ap<counter> = getelementptr inbounds %struct.vecType* %<d_counter>, i32 0, i32 2
+	;load arrays
 	%as<counter> = load \<32 x i32\>** %ap<counter>, align 8
+	;get pointer to array
 	%aip<counter> = getelementptr inbounds \<32 x i32\>* %as<counter>, i32 %bn<counter>
+	;load array
 	%aa<counter> = load \<32 x i32\>* %aip<counter>, align 128
+	;extract at current index
 	%v<counter> = extractelement \<32 x i32\> %aa<counter>, i32 %ib<counter>
+	;store in domain variable
 	store i32 %v<counter>, i32* %<var><fgc>, align 4
+	;expression goes here
 	<exp>
+	;check result of expression
 	%c2<counter> = icmp ugt i32 %<exp_counter>, 0
 	br i1 %c2<counter>, label %filter<counter>.add, label %filter<counter>.next
 filter<counter>.add:
+	;load current position in the vector
 	%nc<counter> = load i32* %ncp<counter>, align 4
+	;current block
 	%abn<counter> = udiv i32 %nc<counter>, 32
+	;current index
 	%aib<counter> = urem i32 %nc<counter>, 32
+	;get pointer to array
 	%aaip<counter> = getelementptr inbounds \<32 x i32\>* %ar<counter>, i32 %abn<counter>
-	%aaa<counter> = load \<32 x i32\>* %aaip<counter>, align 128
+	;load array
+	%aaa<counter> = load \<32 x i32\>* %aaip<counter>, align 8
+	;insert into it
 	%ins<counter> = insertelement \<32 x i32\> %aaa<counter>, i32 %v<counter>, i32 %aib<counter>
+	;save the array back
 	store \<32 x i32\> %ins<counter>, \<32 x i32\>* %aaip<counter>, align 128
+	;increment current position and save it
 	%nnc<counter> = add i32 %nc<counter>, 1
 	store i32 %nnc<counter>, i32* %ncp<counter>, align 4
 	br label %filter<counter>.next
 filter<counter>.next:
+	;increment position in domain vector and save it
 	%nlc<counter> = add i32 %lc<counter>, 1
 	store i32 %nlc<counter>, i32* %lcp<counter>, align 4
 	br label %filter<counter>.begin
 filter<counter>.done:
+	;start building our struct
 	%<counter> = alloca %struct.vecType, align 8
 	%nfnptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 0
 	%nfsptr<counter> = getelementptr inbounds %struct.vecType* %<counter>, i32 0, i32 1
